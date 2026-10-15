@@ -15,6 +15,7 @@ export default {
     copy: "Copy",
     copied: "Copied",
     copyFailed: "Select and copy",
+    theme: { dark: "Dark", light: "Light", toDark: "Switch to dark mode", toLight: "Switch to light mode" },
 
     hero: {
       title: "A firmware map for your AI agent",
@@ -313,6 +314,7 @@ export default {
     copy: "复制",
     copied: "已复制",
     copyFailed: "请手动选中复制",
+    theme: { dark: "深色", light: "浅色", toDark: "切换到深色模式", toLight: "切换到浅色模式" },
 
     hero: {
       title: "给 AI agent 的固件藏宝图",

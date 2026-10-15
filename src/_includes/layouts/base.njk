@@ -18,7 +18,7 @@
 <link rel="alternate" hreflang="{{ 'en' if lang == 'zh' else 'zh-CN' }}" href="{{ site.url }}{{ tr.url }}">
 {%- endif %}
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#0b0b0b" media="(prefers-color-scheme: dark)">
 <meta name="color-scheme" content="light dark">
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -35,7 +35,18 @@
 <link rel="preload" href="/assets/fonts/im-fell-english.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/css/site.css?v={{ build.stamp }}">
 <script>
-  document.documentElement.classList.replace("no-js", "js");
+  (function (d) {
+    d.classList.replace("no-js", "js");
+    try {
+      var t = localStorage.getItem("theme");
+      if (t === "light" || t === "dark") {
+        d.setAttribute("data-theme", t);
+        document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) {
+          m.content = t === "dark" ? "#0b0b0b" : "#ffffff";
+        });
+      }
+    } catch (e) {}
+  })(document.documentElement);
 </script>
 </head>
 <body class="page-{{ pageKind or 'article' }}">
@@ -45,7 +56,7 @@
 {{ content | safe }}
 </main>
 {% include "partials/footer.njk" %}
-<script type="application/json" id="i18n">{{ { copy: t.copy, copied: t.copied, copyFailed: t.copyFailed } | json | safe }}</script>
+<script type="application/json" id="i18n">{{ { copy: t.copy, copied: t.copied, copyFailed: t.copyFailed, theme: t.theme } | json | safe }}</script>
 <script src="/assets/js/site.js?v={{ build.stamp }}" defer></script>
 </body>
 </html>

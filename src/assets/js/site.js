@@ -10,6 +10,33 @@
     i18n = JSON.parse($("#i18n")?.textContent || "{}");
   } catch (e) {}
 
+  /* Light / dark: follows the system until the reader picks one; the choice is remembered. */
+  const themeBtn = $("[data-theme-toggle]");
+  if (themeBtn) {
+    const root = document.documentElement;
+    const sysDark = window.matchMedia("(prefers-color-scheme: dark)");
+    const tt = i18n.theme || { dark: "Dark", light: "Light", toDark: "Switch to dark mode", toLight: "Switch to light mode" };
+    const current = () => root.getAttribute("data-theme") || (sysDark.matches ? "dark" : "light");
+    const sync = () => {
+      const dark = current() === "dark";
+      themeBtn.textContent = dark ? tt.light : tt.dark;
+      themeBtn.setAttribute("aria-label", dark ? tt.toLight : tt.toDark);
+      $$('meta[name="theme-color"]').forEach((m) => {
+        m.content = dark ? "#0b0b0b" : "#ffffff";
+      });
+    };
+    themeBtn.addEventListener("click", () => {
+      const next = current() === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try {
+        localStorage.setItem("theme", next);
+      } catch (e) {}
+      sync();
+    });
+    sysDark.addEventListener?.("change", sync);
+    sync();
+  }
+
   /* Header border once the page scrolls */
   const head = $(".site-head");
   if (head) {

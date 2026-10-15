@@ -14,6 +14,7 @@
         {%- endif %}
         <li><a class="nav-gh" href="{{ site.repo }}">{{ t.nav.github }}</a></li>
         <li><a class="nav-lang" href="{{ tr.url if tr else t.other.href }}" hreflang="{{ 'en' if lang == 'zh' else 'zh-CN' }}" lang="{{ 'en' if lang == 'zh' else 'zh-CN' }}">{{ t.other.label }}</a></li>
+        <li class="nav-theme-li"><button type="button" class="nav-theme" data-theme-toggle>{{ t.theme.dark }}</button></li>
       </ul>
     </nav>
   </div>
