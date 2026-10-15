@@ -2,6 +2,7 @@
 {%- set pageTitle = (title + " | Treasure Map") if title else t.meta.title -%}
 {%- set pageDesc = description or t.meta.description -%}
 {%- set prefix = "/zh" if lang == "zh" else "" -%}
+{%- set blogItems = collections["blog_" + (lang or "en")] or [] -%}
 {%- set showcaseItems = collections["showcase_" + (lang or "en")] or [] -%}
 {%- set designItems = collections["design_" + (lang or "en")] or [] -%}
 {%- set tr = collections.all | translationOf(translationKey, lang or "en") -%}

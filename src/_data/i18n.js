@@ -10,7 +10,7 @@ export default {
       description:
         "Treasure Map turns an unpacked firmware filesystem into facts your coding agent reads through a bundled MCP server: every dangerous call, where its data comes from, and what could not be determined.",
     },
-    nav: { start: "Quick start", showcase: "Showcase", design: "Design", github: "GitHub", menu: "Menu" },
+    nav: { start: "Quick start", blog: "Blog", showcase: "Showcase", design: "Design", github: "GitHub", menu: "Menu" },
     skip: "Skip to content",
     copy: "Copy",
     copied: "Copied",
@@ -264,6 +264,8 @@ export default {
     },
 
     articles: {
+      blogTitle: "Blog",
+      blogIntro: "Notes from building Treasure Map.",
       showcaseTitle: "Showcase",
       showcaseIntro: "Worked examples on public firmware: the inputs, the commands, what the map and the diff showed, and what the agent concluded.",
       designTitle: "Design notes",
@@ -309,7 +311,7 @@ export default {
       description:
         "Treasure Map 把解包后的固件文件系统变成一组事实，通过内置的 MCP 服务器交给你的编程 agent：每一处危险调用，数据从哪来，以及哪些没能查清。",
     },
-    nav: { start: "快速开始", showcase: "Showcase", design: "设计理念", github: "GitHub", menu: "菜单" },
+    nav: { start: "快速开始", blog: "博客", showcase: "Showcase", design: "设计理念", github: "GitHub", menu: "菜单" },
     skip: "跳到正文",
     copy: "复制",
     copied: "已复制",
@@ -549,6 +551,8 @@ export default {
     },
 
     articles: {
+      blogTitle: "博客",
+      blogIntro: "做 Treasure Map 这一路上的记录。",
       showcaseTitle: "Showcase",
       showcaseIntro: "在公开固件上的完整案例：输入是什么，跑了哪些命令，地图和对比显示了什么，agent 得出了什么结论。",
       designTitle: "设计理念",

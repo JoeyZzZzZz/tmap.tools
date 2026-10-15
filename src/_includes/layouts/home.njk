@@ -6,6 +6,7 @@ pageKind: home
 {%- set t = i18n[lang] -%}
 {%- set prefix = "/zh" if lang == "zh" else "" -%}
 {%- set L = 2 if lang == "zh" else 1 -%}
+{%- set blogItems = collections["blog_" + lang] or [] -%}
 {%- set showcaseItems = collections["showcase_" + lang] or [] -%}
 {%- set designItems = collections["design_" + lang] or [] -%}
 
@@ -336,10 +337,10 @@ pageKind: home
   </div>
 </section>
 
-{%- if showcaseItems.length or designItems.length %}
-<section class="sec sec-articles" id="articles" aria-label="{{ t.articles.showcaseTitle }}, {{ t.articles.designTitle }}">
+{%- if blogItems.length or showcaseItems.length or designItems.length %}
+<section class="sec sec-articles" id="articles" aria-label="{{ t.articles.blogTitle }}, {{ t.articles.showcaseTitle }}, {{ t.articles.designTitle }}">
   <div class="wrap articles-grid">
-    {%- for group in [["showcase", showcaseItems, t.articles.showcaseTitle, t.articles.showcaseIntro], ["design", designItems, t.articles.designTitle, t.articles.designIntro]] %}
+    {%- for group in [["blog", blogItems, t.articles.blogTitle, t.articles.blogIntro], ["showcase", showcaseItems, t.articles.showcaseTitle, t.articles.showcaseIntro], ["design", designItems, t.articles.designTitle, t.articles.designIntro]] %}
     {%- if group[1].length %}
     <div class="art-col">
       <h2><a href="{{ prefix }}/{{ group[0] }}/">{{ group[2] }}</a></h2>

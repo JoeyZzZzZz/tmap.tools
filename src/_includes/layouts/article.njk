@@ -4,7 +4,7 @@ pageKind: article
 ---
 {%- set t = i18n[lang] -%}
 {%- set prefix = "/zh" if lang == "zh" else "" -%}
-{%- set sectionTitle = t.articles.showcaseTitle if section == "showcase" else t.articles.designTitle -%}
+{%- set sectionTitle = t.articles[section + "Title"] -%}
 {%- set tr = collections.all | translationOf(translationKey, lang) -%}
 {%- set headings = content | toc -%}
 <article class="article{% if headings.length > 2 %} has-toc{% endif %}">
@@ -35,6 +35,6 @@ pageKind: article
     </div>
   </div>
   <footer class="wrap art-foot">
-    <a href="{{ prefix }}/{{ section }}/">{{ t.articles.back }} {{ sectionTitle }}</a>
+    <a href="{{ prefix }}/{{ section }}/">{{ t.articles.back }}{{ " " if lang != "zh" }}{{ sectionTitle }}</a>
   </footer>
 </article>

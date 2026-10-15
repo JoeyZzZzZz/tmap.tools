@@ -4,8 +4,8 @@ pageKind: list
 ---
 {%- set t = i18n[lang] -%}
 {%- set items = collections[section + "_" + lang] or [] -%}
-{%- set heading = t.articles.showcaseTitle if section == "showcase" else t.articles.designTitle -%}
-{%- set intro = t.articles.showcaseIntro if section == "showcase" else t.articles.designIntro -%}
+{%- set heading = t.articles[section + "Title"] -%}
+{%- set intro = t.articles[section + "Intro"] -%}
 <div class="wrap list-page">
   <header class="list-head">
     <h1>{{ heading }}</h1>

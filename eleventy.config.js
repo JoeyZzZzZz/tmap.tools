@@ -4,6 +4,8 @@ import markdownItAnchor from "markdown-it-anchor";
 // Collections that hold the articles. Each one is a folder of Markdown files;
 // the folder's *.11tydata.js gives every file its language, layout and URL.
 const SECTIONS = {
+  blog_en: "src/blog/*.md",
+  blog_zh: "src/zh/blog/*.md",
   showcase_en: "src/showcase/*.md",
   showcase_zh: "src/zh/showcase/*.md",
   design_en: "src/design/*.md",

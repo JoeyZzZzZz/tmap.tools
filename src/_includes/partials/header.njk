@@ -6,6 +6,9 @@
     <nav class="site-nav" aria-label="{{ 'Main' if lang != 'zh' else '主导航' }}">
       <ul>
         <li class="nav-hide-sm"><a href="{{ prefix }}/#start"{% if pageKind == 'home' %} data-spy="start"{% endif %}>{{ t.nav.start }}</a></li>
+        {%- if blogItems.length %}
+        <li class="nav-sec"><a href="{{ prefix }}/blog/"{% if section == 'blog' %} aria-current="page"{% endif %}>{{ t.nav.blog }}</a></li>
+        {%- endif %}
         {%- if showcaseItems.length %}
         <li class="nav-sec"><a href="{{ prefix }}/showcase/"{% if section == 'showcase' %} aria-current="page"{% endif %}>{{ t.nav.showcase }}</a></li>
         {%- endif %}
@@ -18,10 +21,11 @@
       </ul>
     </nav>
   </div>
-  {%- if showcaseItems.length or designItems.length %}
+  {%- if blogItems.length or showcaseItems.length or designItems.length %}
   <nav class="subnav" aria-label="{{ 'Sections' if lang != 'zh' else '栏目' }}">
     <div class="wrap subnav-in">
       <a href="{{ prefix }}/#start">{{ t.nav.start }}</a>
+      {%- if blogItems.length %}<a href="{{ prefix }}/blog/"{% if section == 'blog' %} aria-current="page"{% endif %}>{{ t.nav.blog }}</a>{% endif %}
       {%- if showcaseItems.length %}<a href="{{ prefix }}/showcase/"{% if section == 'showcase' %} aria-current="page"{% endif %}>{{ t.nav.showcase }}</a>{% endif %}
       {%- if designItems.length %}<a href="{{ prefix }}/design/"{% if section == 'design' %} aria-current="page"{% endif %}>{{ t.nav.design }}</a>{% endif %}
     </div>

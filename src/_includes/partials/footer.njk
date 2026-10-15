@@ -12,6 +12,7 @@
     </ul>
     <ul class="foot-links">
       <li><a href="{{ prefix }}/#start">{{ t.nav.start }}</a></li>
+      {%- if blogItems.length %}<li><a href="{{ prefix }}/blog/">{{ t.nav.blog }}</a></li>{% endif %}
       {%- if showcaseItems.length %}<li><a href="{{ prefix }}/showcase/">{{ t.nav.showcase }}</a></li>{% endif %}
       {%- if designItems.length %}<li><a href="{{ prefix }}/design/">{{ t.nav.design }}</a></li>{% endif %}
       <li><a href="{{ tr.url if tr else t.other.href }}" lang="{{ 'en' if lang == 'zh' else 'zh-CN' }}">{{ t.other.label }}</a></li>
