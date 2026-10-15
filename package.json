@@ -1,0 +1,21 @@
+{
+  "name": "tmap-tools-site",
+  "version": "1.0.0",
+  "description": "Source of tmap.tools, the Treasure Map website",
+  "scripts": {
+    "build": "eleventy",
+    "start": "eleventy --serve"
+  },
+  "author": "JoeyZzZzZz",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@11ty/eleventy": "^3.1.6",
+    "@11ty/eleventy-plugin-syntaxhighlight": "^5.0.2",
+    "markdown-it-anchor": "^10.0.0"
+  },
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  }
+}

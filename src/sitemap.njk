@@ -1,0 +1,13 @@
+---
+permalink: /sitemap.xml
+eleventyExcludeFromCollections: true
+---
+<?xml version="1.0" encoding="utf-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+{%- for p in collections.all %}
+{%- set listed = (collections[p.data.section + "_" + p.data.lang] or []) | length %}
+{%- if not p.data.section or p.data.pageKind == "article" or listed %}
+  <url><loc>{{ site.url }}{{ p.url }}</loc>{% if p.data.pageKind == "article" %}<lastmod>{{ p.date | isoDate }}</lastmod>{% endif %}</url>
+{%- endif %}
+{%- endfor %}
+</urlset>

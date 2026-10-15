@@ -1,0 +1,36 @@
+{#- Tri-state glyph: filled = yes, open ring = no, dashed ring with ? = unknown. -#}
+{% macro tri(state, label) -%}
+<span class="tri tri-{{ state }}"{% if label %} title="{{ label }}"{% endif %} aria-hidden="true">{% if state == "unknown" %}?{% endif %}</span>
+{%- endmacro %}
+
+{% macro copyblock(code, label, t, cls="") -%}
+<div class="codeblock {{ cls }}">
+  <pre tabindex="0"><code>{{ code }}</code></pre>
+  <button class="copy-btn" type="button" data-copy data-copy-text="{{ code }}" aria-label="{{ t.copy }}{% if label %}: {{ label }}{% endif %}"><span class="copy-label">{{ t.copy }}</span></button>
+</div>
+{%- endmacro %}
+
+{% macro shell(code, t, label="", cls="") -%}
+<div class="codeblock codeblock-shell {{ cls }}">
+  <pre tabindex="0"><code>{% for line in code.split("\n") %}<span class="ln"><span class="prompt" aria-hidden="true">$ </span>{{ line }}</span>{% endfor %}</code></pre>
+  <button class="copy-btn" type="button" data-copy data-copy-text="{{ code }}" aria-label="{{ t.copy }}{% if label %}: {{ label }}{% endif %}"><span class="copy-label">{{ t.copy }}</span></button>
+</div>
+{%- endmacro %}
+
+{#- A hand-drawn X, the mark a treasure map puts on a spot. -#}
+{% macro xmark(cls="") -%}
+<svg class="xmark {{ cls }}" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.2 3.4c3.1 3.3 7.4 7.9 11.5 11.3M14.6 3.1c-3.6 3.9-7.6 7.7-11.3 11.7"/></svg>
+{%- endmacro %}
+
+{% macro compass() -%}
+<svg class="compass" viewBox="-26 -30 52 56" aria-hidden="true">
+  <circle class="c-ring" r="15"/><circle class="c-ring c-ring-in" r="12.5"/>
+  {%- for a in [0, 90, 180, 270] %}
+  <g transform="rotate({{ a }})"><path class="c-dark" d="M0 0L0 -21L-4 -4Z"/><path class="c-light" d="M0 0L0 -21L4 -4Z"/></g>
+  {%- endfor %}
+  {%- for a in [45, 135, 225, 315] %}
+  <g transform="rotate({{ a }})"><path class="c-dark" d="M0 0L0 -12L-2.4 -2.4Z"/><path class="c-light" d="M0 0L0 -12L2.4 -2.4Z"/></g>
+  {%- endfor %}
+  <text class="c-n" x="0" y="-23.5" text-anchor="middle">N</text>
+</svg>
+{%- endmacro %}

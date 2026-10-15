@@ -1,0 +1,143 @@
+// Illustrative candidate list for the home page. Not from real firmware.
+// States: "yes" | "no" | "unknown". Reachability is never "no": tmap never claims a path is unreachable.
+// Each note is [english, chinese].
+
+const c = (o) => o;
+
+export default {
+  candidates: [
+    c({
+      id: "c1",
+      call: "system()",
+      cls: "cmd",
+      binary: "httpd",
+      path: "/usr/sbin/httpd",
+      fn: "FUN_0040a1f0",
+      off: "0x000124",
+      ref: "demo-fw#7c4e2b19:0x0040a1f0@cmd@0x000124",
+      layers: {
+        source: ["yes", "recv() earlier in the same function", "同一函数里先调用了 recv()"],
+        control: ["yes", "request bytes reach the argument", "请求内容流到这个参数"],
+        writer: ["yes", "snprintf() builds the command string", "snprintf() 拼出命令字符串"],
+        reach: ["unknown", "no direct caller found; it may be called through a dispatch table", "没找到直接调用者，可能经由分发表调用"],
+        filter: ["no", "no check between the input and the call", "输入和调用之间没有检查"],
+        complete: ["yes", "the function decompiled fully", "函数完整反编译"],
+      },
+      why: [
+        "Highest-impact class, and nothing proves it safe.",
+        "影响最大的一类，且没有任何事实证明它安全。",
+      ],
+    }),
+    c({
+      id: "c2",
+      call: "strcpy()",
+      cls: "copy",
+      binary: "libcfg.so",
+      path: "/usr/lib/libcfg.so",
+      fn: "FUN_00012e40",
+      off: "0x000088",
+      ref: "demo-fw#3e8a5d26:0x00012e40@copy@0x000088",
+      layers: {
+        source: ["unknown", "the value arrives as a parameter; its callers live in other binaries", "值通过参数传入，调用者在其他二进制里"],
+        control: ["unknown", "depends on those callers", "取决于这些调用者"],
+        writer: ["yes", "the caller's argument, passed straight through", "调用者传入的参数，原样传递"],
+        reach: ["yes", "exported, and called from httpd", "导出函数，httpd 会调用它"],
+        filter: ["no", "no length check before the copy", "拷贝前没有长度检查"],
+        complete: ["yes", "the function decompiled fully", "函数完整反编译"],
+      },
+      why: [
+        "An unknown source keeps it high. Unknown never pushes a candidate down.",
+        "来源未知，所以留在前面。未知不会让候选下沉。",
+      ],
+    }),
+    c({
+      id: "c3",
+      call: "memcpy()",
+      cls: "copy",
+      binary: "logd",
+      path: "/sbin/logd",
+      fn: "FUN_00403b10",
+      off: "0x000210",
+      ref: "demo-fw#9d2c6f40:0x00403b10@copy@0x000210",
+      layers: {
+        source: ["yes", "recvfrom() on a UDP socket", "UDP socket 上的 recvfrom()"],
+        control: ["yes", "the length comes from the packet", "长度来自数据包"],
+        writer: ["yes", "recvfrom() fills the buffer", "recvfrom() 写入缓冲区"],
+        reach: ["yes", "called from the receive loop", "接收循环会调用它"],
+        filter: ["unknown", "a bound check may sit in a branch the decompiler did not recover", "边界检查可能在反编译器没恢复出来的分支里"],
+        complete: ["no", "decompilation of this function was incomplete", "这个函数没能完整反编译"],
+      },
+      why: [
+        "Not fully analyzed, and the list says so instead of guessing.",
+        "没有分析完整，列表如实写出，而不是去猜。",
+      ],
+    }),
+    c({
+      id: "c4",
+      call: "sprintf()",
+      cls: "format",
+      binary: "upnpd",
+      path: "/usr/sbin/upnpd",
+      fn: "FUN_00408c3c",
+      off: "0x0001c4",
+      ref: "demo-fw#5a1e7c93:0x00408c3c@format@0x0001c4",
+      layers: {
+        source: ["yes", "recvfrom()", "recvfrom()"],
+        control: ["yes", "a header value is the %s argument", "请求头里的值就是 %s 参数"],
+        writer: ["yes", "the header parser", "请求头解析函数"],
+        reach: ["yes", "called from the request handler", "请求处理函数会调用它"],
+        filter: ["unknown", "a length check is in a callee that was not followed", "长度检查在一个没有跟进的被调函数里"],
+        complete: ["yes", "the function decompiled fully", "函数完整反编译"],
+      },
+      why: [
+        "Network input reaches the format call; the filter is unknown, so it stays.",
+        "网络输入流到格式化调用；过滤情况未知，所以留在列表里。",
+      ],
+    }),
+    c({
+      id: "c5",
+      call: "fopen()",
+      cls: "path",
+      binary: "httpd",
+      path: "/usr/sbin/httpd",
+      fn: "FUN_00419d58",
+      off: "0x00009c",
+      ref: "demo-fw#7c4e2b19:0x00419d58@path@0x00009c",
+      layers: {
+        source: ["yes", "a query parameter, from a text-level reading", "一个查询参数，来自文本层面的读取"],
+        control: ["unknown", "path calls get a text-level reading only, and say so", "路径类调用只做文本层面的读取，并如实标明"],
+        writer: ["yes", "sprintf() joins a directory and the parameter", "sprintf() 把目录和参数拼在一起"],
+        reach: ["yes", "called from the request handler", "请求处理函数会调用它"],
+        filter: ["no", "no check on the path", "没有检查路径"],
+        complete: ["yes", "the function decompiled fully", "函数完整反编译"],
+      },
+      why: [
+        "Detected and ranked; its controllability is a text-level reading.",
+        "已检测并排序；它的可控性来自文本层面的读取。",
+      ],
+    }),
+    c({
+      id: "c6",
+      call: "popen()",
+      cls: "cmd",
+      binary: "timed",
+      path: "/usr/bin/timed",
+      fn: "FUN_00400f20",
+      off: "0x000058",
+      ref: "demo-fw#2b6d4e81:0x00400f20@cmd@0x000058",
+      safe: true,
+      layers: {
+        source: ["no", "the argument is a constant string", "参数是常量字符串"],
+        control: ["no", "proven constant", "已证明是常量"],
+        writer: ["yes", "a string literal in .rodata", ".rodata 里的字符串字面量"],
+        reach: ["yes", "called at start-up", "启动时调用"],
+        filter: ["no", "nothing to filter", "没有需要过滤的内容"],
+        complete: ["yes", "the function decompiled fully", "函数完整反编译"],
+      },
+      why: [
+        "Proven safe: the command is a constant. Only a fact like this moves a candidate down.",
+        "已证明安全：命令是常量。只有这样的事实才能让候选下沉。",
+      ],
+    }),
+  ],
+};

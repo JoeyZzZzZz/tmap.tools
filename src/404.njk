@@ -1,0 +1,18 @@
+---
+layout: layouts/base.njk
+lang: en
+pageKind: notfound
+title: Page not found
+permalink: /404.html
+eleventyExcludeFromCollections: true
+---
+<div class="wrap nf">
+  <h1>{{ i18n.en.notFound.title }}</h1>
+  <p>{{ i18n.en.notFound.body }}</p>
+  <p><a class="btn btn-primary" href="/">{{ i18n.en.notFound.home }}</a></p>
+  <div lang="zh-CN" class="nf-zh">
+    <h2>{{ i18n.zh.notFound.title }}</h2>
+    <p>{{ i18n.zh.notFound.body }}</p>
+    <p><a class="btn" href="/zh/">{{ i18n.zh.notFound.home }}</a></p>
+  </div>
+</div>

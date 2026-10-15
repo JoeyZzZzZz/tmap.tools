@@ -1,0 +1,27 @@
+---
+layout: layouts/base.njk
+pageKind: list
+---
+{%- set t = i18n[lang] -%}
+{%- set items = collections[section + "_" + lang] or [] -%}
+{%- set heading = t.articles.showcaseTitle if section == "showcase" else t.articles.designTitle -%}
+{%- set intro = t.articles.showcaseIntro if section == "showcase" else t.articles.designIntro -%}
+<div class="wrap list-page">
+  <header class="list-head">
+    <h1>{{ heading }}</h1>
+    <p class="sec-intro">{{ intro }}</p>
+  </header>
+  {%- if items.length %}
+  <ul class="art-list art-list-full">
+    {%- for a in items %}
+    <li><a href="{{ a.url }}">
+      <span class="art-title">{{ a.data.title }}</span>
+      {%- if a.data.description %}<span class="art-desc">{{ a.data.description }}</span>{% endif %}
+      <time datetime="{{ a.date | isoDate }}">{{ a.date | longDate(lang) }}</time>
+    </a></li>
+    {%- endfor %}
+  </ul>
+  {%- else %}
+  <p class="empty">{{ t.articles.empty }}</p>
+  {%- endif %}
+</div>

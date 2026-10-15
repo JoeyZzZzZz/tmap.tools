@@ -1,0 +1,40 @@
+---
+layout: layouts/base.njk
+pageKind: article
+---
+{%- set t = i18n[lang] -%}
+{%- set prefix = "/zh" if lang == "zh" else "" -%}
+{%- set sectionTitle = t.articles.showcaseTitle if section == "showcase" else t.articles.designTitle -%}
+{%- set tr = collections.all | translationOf(translationKey, lang) -%}
+{%- set headings = content | toc -%}
+<article class="article{% if headings.length > 2 %} has-toc{% endif %}">
+  <header class="wrap art-head">
+    <p class="art-crumb"><a href="{{ prefix }}/{{ section }}/">{{ sectionTitle }}</a></p>
+    <h1>{{ title }}</h1>
+    {%- if description %}<p class="art-lede">{{ description }}</p>{% endif %}
+    <p class="art-meta">
+      <span>{{ t.articles.published }} <time datetime="{{ page.date | isoDate }}">{{ page.date | longDate(lang) }}</time></span>
+      {%- if updated %}<span>{{ t.articles.updated }} <time datetime="{{ updated | isoDate }}">{{ updated | longDate(lang) }}</time></span>{% endif %}
+      <span>{{ content | readingMinutes(lang) }} {{ t.articles.read }}</span>
+      {%- if tr %}<a href="{{ tr.url }}" hreflang="{{ 'en' if lang == 'zh' else 'zh-CN' }}" >{{ t.articles.translation }}</a>{% endif %}
+    </p>
+  </header>
+  <div class="wrap art-grid">
+    {%- if headings.length > 2 %}
+    <nav class="art-toc" aria-labelledby="toc-title">
+      <p class="toc-title" id="toc-title">{{ t.articles.toc }}</p>
+      <ol>
+        {%- for h in headings %}
+        <li class="toc-l{{ h.level }}"><a href="#{{ h.id }}">{{ h.text }}</a></li>
+        {%- endfor %}
+      </ol>
+    </nav>
+    {%- endif %}
+    <div class="prose">
+{{ content | safe }}
+    </div>
+  </div>
+  <footer class="wrap art-foot">
+    <a href="{{ prefix }}/{{ section }}/">{{ t.articles.back }} {{ sectionTitle }}</a>
+  </footer>
+</article>

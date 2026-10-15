@@ -1,0 +1,366 @@
+---
+layout: layouts/base.njk
+pageKind: home
+---
+{%- import "partials/macros.njk" as m -%}
+{%- set t = i18n[lang] -%}
+{%- set prefix = "/zh" if lang == "zh" else "" -%}
+{%- set L = 2 if lang == "zh" else 1 -%}
+{%- set showcaseItems = collections["showcase_" + lang] or [] -%}
+{%- set designItems = collections["design_" + lang] or [] -%}
+
+<section class="hero" aria-labelledby="hero-title">
+  <div class="wrap hero-grid">
+    <div class="hero-text">
+      <h1 id="hero-title">{{ t.hero.title }}</h1>
+      <p class="hero-tagline"><span>{{ t.hero.taglineTool }}</span> <span class="tagline-agent">{{ t.hero.taglineAgent }}</span></p>
+      <p class="hero-lede">{{ t.hero.lede }}</p>
+      <div class="install">
+        <p class="install-label" id="install-label">{{ t.hero.installLabel }}</p>
+        {{ m.shell(site.install, t, t.hero.installLabel, "codeblock-wrap") }}
+        <p class="install-note">{{ t.hero.installNote | safe }}</p>
+      </div>
+      <p class="hero-actions">
+        <a class="btn btn-primary" href="#start">{{ t.hero.ctaStart }}</a>
+        <a class="btn" href="{{ site.repo }}">{{ t.hero.ctaRepo }}</a>
+      </p>
+      <p class="hero-works">{{ t.hero.worksWith }}</p>
+    </div>
+
+    <figure class="arch" aria-labelledby="arch-cap">
+      <figcaption id="arch-cap" class="arch-cap"><span>{{ t.arch.rule }}</span>{{ m.compass() }}</figcaption>
+      <div class="arch-zone arch-tool">
+        <p class="zone-name">{{ t.arch.toolSide }}<span class="zone-note">{{ t.arch.toolNote }}</span></p>
+        <div class="arch-flow">
+          <div class="node node-in node-in-1"><span class="node-k">{{ t.arch.inScan }}</span><code>{{ t.arch.inScanCode | replace(".extracted", "<wbr>.extracted") | safe }}</code></div>
+          <div class="edge edge-1"><code class="edge-cmd">{{ t.arch.scan }}</code><span class="edge-line" aria-hidden="true"></span><span class="edge-note">{{ t.arch.scanNote }}</span></div>
+          <div class="node node-in node-in-2"><span class="node-k">{{ t.arch.inDiff }}</span><code>{{ t.arch.inDiffCode }}</code></div>
+          <div class="edge edge-2"><code class="edge-cmd">{{ t.arch.diff }}</code><span class="edge-line" aria-hidden="true"></span><span class="edge-note">{{ t.arch.diffNote }}</span></div>
+          <div class="node node-atlas">
+            <p class="atlas-head"><span class="node-k">{{ t.arch.atlas }}</span><code>{{ t.arch.atlasCode }}</code></p>
+            <div class="layer layer-facts">
+              <p class="layer-name">{{ t.arch.factLayer }}<span class="layer-tag">{{ t.arch.factTag }}</span></p>
+              <p class="layer-note">{{ t.arch.factNote }}</p>
+            </div>
+            <div class="layer-rel">
+              <p class="rel rel-down"><span class="rel-arrow" aria-hidden="true"></span><span>{{ t.arch.relDown }}</span></p>
+              <p class="rel rel-block"><span class="rel-arrow" aria-hidden="true"></span><span>{{ t.arch.relBlock }}</span></p>
+            </div>
+            <div class="layer layer-notes">
+              <p class="layer-name">{{ t.arch.noteLayer }}<span class="layer-tag">{{ t.arch.noteTag }}</span></p>
+              <p class="layer-note">{{ t.arch.noteNote }}</p>
+            </div>
+          </div>
+          <div class="node node-mcp"><span class="node-k">{{ t.arch.mcp }}</span><code>tmap mcp</code></div>
+        </div>
+      </div>
+      <div class="arch-bridge">
+        <p class="flow flow-down"><span class="flow-arrow" aria-hidden="true"></span><span>{{ t.arch.down }}</span></p>
+        <p class="flow flow-up"><span class="flow-arrow" aria-hidden="true"></span><span>{{ t.arch.up }}</span></p>
+      </div>
+      <div class="arch-zone arch-agent">
+        <p class="zone-name">{{ m.xmark("xmark-agent") }}{{ t.arch.agentSide }}<span class="zone-note">{{ t.arch.agentNote }}</span></p>
+        <p class="agent-does">{{ t.arch.agentDoes }}</p>
+      </div>
+    </figure>
+  </div>
+</section>
+
+<section class="does" aria-labelledby="does-title">
+  <div class="wrap">
+    <h2 id="does-title" class="sr-only">{{ t.does.title }}</h2>
+    <div class="does-grid">
+      <a class="does-item" href="#map">
+        <h3>{{ t.does.map.name }}</h3>
+        <p>{{ t.does.map.body }}</p>
+        <span class="does-link">{{ t.does.map.link }}</span>
+      </a>
+      <a class="does-item" href="#diff">
+        <h3>{{ t.does.diff.name }}</h3>
+        <p>{{ t.does.diff.body }}</p>
+        <span class="does-link">{{ t.does.diff.link }}</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="map" aria-labelledby="map-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 id="map-title">{{ t.map.title }}</h2>
+      <p class="sec-intro">{{ t.map.intro | safe }}</p>
+    </div>
+
+    <div class="cand" data-cand>
+      <div class="panel-top">
+        <p class="panel-label">{{ t.widget.label }}</p>
+        <p class="panel-note">{{ t.widget.note }}</p>
+      </div>
+      <div class="cand-bar">
+        <label class="lens">
+          <span class="lens-label">{{ t.widget.orderBy }}</span>
+          <select data-lens>
+            <option value="default">{{ t.widget.lensDefault }}</option>
+            {%- for ly in t.layers %}
+            <option value="{{ ly.key }}">{{ ly.long }}</option>
+            {%- endfor %}
+          </select>
+        </label>
+        <p class="cand-count" data-count aria-live="polite">{{ t.widget.count(demo.candidates.length) }}</p>
+      </div>
+      <div class="cand-body">
+        <div class="cand-listwrap">
+          <div class="cand-cols" aria-hidden="true">
+            <span class="cc-rank">{{ t.widget.colRank }}</span>
+            <span class="cc-call">{{ t.widget.colCall }}</span>
+            <span class="cc-bin">{{ t.widget.colWhere }}</span>
+            <span class="cc-layers">{% for ly in t.layers %}<span data-layer-col="{{ ly.key }}">{{ ly.short }}</span>{% endfor %}</span>
+          </div>
+          <ol class="cand-list" data-list>
+            {%- for c in demo.candidates %}
+            <li class="cand-row{% if c.safe %} is-safe{% endif %}" data-id="{{ c.id }}">
+              <button type="button" class="cand-btn" aria-pressed="{{ 'true' if loop.first else 'false' }}" aria-controls="cand-detail">
+                <span class="cr-rank" data-rank>{{ loop.index }}</span>
+                <span class="cr-call"><code>{{ c.call }}</code><span class="cr-class">{{ t.classes[c.cls] }}</span></span>
+                <span class="cr-bin"><code>{{ c.binary }}</code></span>
+                <span class="cr-layers">
+                  {%- for ly in t.layers %}{% set st = c.layers[ly.key][0] %}{{ m.tri(st, ly.short + ": " + t.states[st]) }}{% endfor -%}
+                </span>
+                <span class="sr-only">{% for ly in t.layers %}{{ ly.long }}: {{ t.states[c.layers[ly.key][0]] }}. {% endfor %}</span>
+              </button>
+            </li>
+            {%- endfor %}
+          </ol>
+          <ul class="cand-rules">
+            {%- for r in t.map.rules %}
+            <li><b>{{ r.head }}</b> {{ r.body }}</li>
+            {%- endfor %}
+          </ul>
+          <ul class="tri-legend">
+            <li>{{ m.tri("yes") }}{{ t.widget.legendYes }}</li>
+            <li>{{ m.tri("no") }}{{ t.widget.legendNo }}</li>
+            <li>{{ m.tri("unknown") }}{{ t.widget.legendUnknown }}</li>
+          </ul>
+        </div>
+
+        {%- set c = demo.candidates[0] %}
+        <div class="cand-detail" id="cand-detail" data-detail aria-live="polite">
+          <div class="cd-head">
+            <p class="cd-rank" data-d="rank">#1</p>
+            <h3 class="cd-call"><code data-d="call">{{ c.call }}</code> <span class="cd-class" data-d="cls">{{ t.classes[c.cls] }}</span></h3>
+            <p class="cd-where"><code data-d="path">{{ c.path }}</code> <code data-d="fn">{{ c.fn }}</code> <code class="cd-off" data-d="off">+{{ c.off }}</code></p>
+          </div>
+          <dl class="cd-layers" data-d="layers">
+            {%- for ly in t.layers %}{% set v = c.layers[ly.key] %}
+            <div class="cd-layer is-{{ v[0] }}">
+              <dt>{{ m.tri(v[0]) }}<span class="cd-q">{{ ly.long }}</span><span class="cd-state">{{ t.states[v[0]] }}</span></dt>
+              <dd>{{ v[L] }}</dd>
+            </div>
+            {%- endfor %}
+          </dl>
+          <p class="cd-why"><span class="cd-k">{{ t.widget.whyLabel }}</span><span data-d="why">{{ c.why[L - 1] }}</span></p>
+          <p class="cd-ref"><span class="cd-k">{{ t.widget.ref }}</span><code data-d="ref">{{ c.ref }}</code></p>
+        </div>
+      </div>
+    </div>
+
+    <p class="coverage">{{ t.map.coverage }}</p>
+  </div>
+  <script type="application/json" id="cand-data">{{ { lang: lang, L: L, layers: t.layers, states: t.states, classes: t.classes, count: t.widget.count(demo.candidates.length), candidates: demo.candidates } | json | safe }}</script>
+</section>
+
+<section class="sec" id="diff" aria-labelledby="diff-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 id="diff-title">{{ t.diff.title }}</h2>
+      <p class="sec-intro">{{ t.diff.intro | safe }}</p>
+      <ul class="agent-qs">
+        {%- for q in t.diff.questions %}<li>{{ q }}</li>{% endfor %}
+      </ul>
+    </div>
+
+    <figure class="cmp" aria-labelledby="cmp-cap">
+      <div class="panel-top">
+        <p class="panel-label" id="cmp-cap">{{ t.diff.exampleLabel }}</p>
+        <p class="panel-note">{{ t.diff.exampleNote }}</p>
+      </div>
+      <div class="cmp-panes">
+        {%- for side in ["before", "after"] %}
+        {%- set k = "0x40" if side == "before" else "0x3f" %}
+        <div class="pane pane-{{ side }}">
+          <p class="pane-head"><span class="pane-side">{{ t.diff[side] }}</span> <code>{{ "fw-v1" if side == "before" else "fw-v2" }}</code> <code>httpd</code></p>
+<pre class="code" tabindex="0"><code><span class="t">void</span> <span class="f">FUN_0040b2a4</span>(<span class="t">undefined4</span> param_1)
+{
+  <span class="t">char</span> *pcVar1;
+  <span class="t">char</span> local_48 [<span class="n">64</span>];
+
+  pcVar1 = (<span class="t">char</span> *)<span class="f">websGetVar</span>(param_1,<span class="s">"name"</span>,<span class="s">""</span>);
+  <span class="f">strncpy</span>(local_48,pcVar1,<mark class="chg">{{ k }}</mark>);
+  <span class="f">FUN_0040c118</span>(local_48);
+  <span class="k">return</span>;
+}</code></pre>
+        </div>
+        {%- endfor %}
+      </div>
+      <div class="cmp-read">
+        <div class="read read-bindiff">
+          <p class="read-k">{{ t.diff.bindiff }}</p>
+          <p class="read-v"><code>1.00</code></p>
+        </div>
+        <div class="read read-tmap">
+          <p class="read-k">{{ t.diff.tmapSays }}</p>
+          <ul>
+            <li>{{ m.xmark() }}<span>{{ t.diff.flagSame }}</span></li>
+            <li>{{ m.xmark() }}<span>{{ t.diff.flagConst }} <code class="chg-inline">strncpy() 0x40 → 0x3f</code></span></li>
+          </ul>
+        </div>
+      </div>
+      <p class="cmp-body">{{ t.diff.missesBody | safe }}</p>
+    </figure>
+
+    <div class="diff-lower">
+      <dl class="points">
+        {%- for p in t.diff.points %}
+        <div><dt>{{ p.head }}</dt><dd>{{ p.body }}</dd></div>
+        {%- endfor %}
+      </dl>
+      <figure class="pview" aria-labelledby="pview-cap">
+        <p class="panel-label" id="pview-cap">{{ t.diff.viewLabel }}</p>
+        {%- for g in t.diff.groups %}
+        <div class="pv-group">
+          <p class="pv-name">{{ g.name }}</p>
+          {%- for r in g.rows %}
+          <p class="pv-row"><code>{{ r[0] }}</code> <code>{{ r[1] }}</code> <span>{{ r[2] }}</span></p>
+          {%- endfor %}
+        </div>
+        {%- endfor %}
+        <div class="pv-group pv-blind">
+          <p class="pv-name">{{ m.tri("unknown") }}{{ t.diff.blindName }}</p>
+          {%- for r in t.diff.blind %}
+          <p class="pv-row"><code>{{ r[0] }}</code>{% if r[1] %} <code>{{ r[1] }}</code>{% endif %} <span>{{ r[2] }}</span></p>
+          {%- endfor %}
+        </div>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="sec sec-why" id="why" aria-labelledby="why-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 id="why-title">{{ t.why.title }}</h2>
+      <p class="sec-intro">{{ t.why.intro }}</p>
+    </div>
+    <ul class="why-list">
+      {%- for w in t.why.items %}
+      <li class="why-item">
+        <span class="why-sym why-sym-{{ w.sym }}" aria-hidden="true">
+          {%- if w.sym == "unknown" %}<svg viewBox="0 0 40 40"><circle class="u-ring" cx="20" cy="20" r="15"/><text x="20" y="27" text-anchor="middle">?</text></svg>
+          {%- elif w.sym == "lead" %}<svg viewBox="0 0 40 40"><path class="l-trail" d="M3 33c6-2 9-8 15-9s9 3 13-2"/><path class="l-x" d="M26 8.5c2.6 2.8 6 6.3 9.4 9.2M35.2 8.2c-3 3.2-6.2 6.4-9.3 9.7"/></svg>
+          {%- else %}<svg viewBox="0 0 40 40"><rect class="n-sheet" x="7" y="9" width="22" height="25" rx="1.5"/><rect class="n-sheet n-top" x="11" y="5" width="22" height="25" rx="1.5"/><path class="n-line" d="M15 13h14M15 18h14M15 23h9"/></svg>{% endif -%}
+        </span>
+        <h3>{{ w.head }}</h3>
+        <p>{{ w.body }}</p>
+      </li>
+      {%- endfor %}
+    </ul>
+  </div>
+</section>
+
+<section class="sec" id="start" aria-labelledby="start-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 id="start-title">{{ t.start.title }}</h2>
+    </div>
+    <ol class="steps">
+      {%- for s in t.start.steps %}
+      <li class="step">
+        <div class="step-text">
+          <h3><span class="step-n" aria-hidden="true">{{ loop.index }}</span>{{ s.head }}</h3>
+          <p>{{ s.body | safe }}</p>
+        </div>
+        <div class="step-code">
+          {{ m.shell(site.install if s.code == "INSTALL" else s.code, t, s.head, "codeblock-wrap" if s.code == "INSTALL" else "") }}
+          {%- if s.prompt %}
+          <p class="prompt-label">{{ s.promptLabel }}</p>
+          {{ m.copyblock(s.prompt, s.promptLabel, t, "codeblock-prompt") }}
+          {%- endif %}
+        </div>
+      </li>
+      {%- endfor %}
+    </ol>
+    <p class="start-after">{{ t.start.after | safe }}</p>
+  </div>
+</section>
+
+<section class="sec sec-details" id="details" aria-labelledby="details-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 id="details-title">{{ t.details.title }}</h2>
+    </div>
+    <div class="details-grid">
+      <div class="det det-tool">
+        <h3>{{ t.details.toolchainTitle }}</h3>
+        <p>{{ t.details.toolchainNote | safe }}</p>
+        <div class="table-wrap"><table>
+          <thead><tr>{% for h in t.details.toolchainHead %}<th scope="col">{{ h }}</th>{% endfor %}</tr></thead>
+          <tbody>
+            {%- for r in t.details.toolchain %}
+            <tr><th scope="row">{{ r[0] }}</th><td>{{ r[1] }}</td><td>{{ r[2] | safe }}</td></tr>
+            {%- endfor %}
+          </tbody>
+        </table></div>
+      </div>
+      <div class="det det-plat">
+        <h3>{{ t.details.platformsTitle }}</h3>
+        <ul class="plat">
+          {%- for p in t.details.platforms %}
+          <li>{{ m.tri(p[2]) }}<span class="plat-name">{{ p[0] }}</span><span class="plat-state">{{ p[1] }}</span></li>
+          {%- endfor %}
+        </ul>
+      </div>
+      <div class="det det-agents">
+        <h3>{{ t.details.agentsTitle }}</h3>
+        <p>{{ t.details.agentsBody | safe }}</p>
+      </div>
+      <div class="det det-cmds">
+        <h3>{{ t.details.commandsTitle }}</h3>
+        <dl class="cmds">
+          {%- for c in t.details.commands %}
+          <div><dt><code>{{ c[0] }}</code></dt><dd>{{ c[1] }}</dd></div>
+          {%- endfor %}
+        </dl>
+      </div>
+    </div>
+    <p class="readme-link"><a href="{{ site.repo }}{{ '/blob/main/README.zh.md' if lang == 'zh' else '#readme' }}">{{ t.details.readme }}</a></p>
+  </div>
+</section>
+
+{%- if showcaseItems.length or designItems.length %}
+<section class="sec sec-articles" id="articles" aria-label="{{ t.articles.showcaseTitle }}, {{ t.articles.designTitle }}">
+  <div class="wrap articles-grid">
+    {%- for group in [["showcase", showcaseItems, t.articles.showcaseTitle, t.articles.showcaseIntro], ["design", designItems, t.articles.designTitle, t.articles.designIntro]] %}
+    {%- if group[1].length %}
+    <div class="art-col">
+      <h2><a href="{{ prefix }}/{{ group[0] }}/">{{ group[2] }}</a></h2>
+      <p class="sec-intro">{{ group[3] }}</p>
+      <ul class="art-list">
+        {%- for a in group[1] | head(3) %}
+        <li><a href="{{ a.url }}"><span class="art-title">{{ a.data.title }}</span>{% if a.data.description %}<span class="art-desc">{{ a.data.description }}</span>{% endif %}<time datetime="{{ a.date | isoDate }}">{{ a.date | longDate(lang) }}</time></a></li>
+        {%- endfor %}
+      </ul>
+      {%- if group[1].length > 3 %}<p><a href="{{ prefix }}/{{ group[0] }}/">{{ t.articles.all }}</a></p>{% endif %}
+    </div>
+    {%- endif %}
+    {%- endfor %}
+  </div>
+</section>
+{%- endif %}
+
+<section class="sec sec-use" id="use" aria-labelledby="use-title">
+  <div class="wrap use-in">
+    <h2 id="use-title">{{ t.use.title }}</h2>
+    <p>{{ t.use.body }}</p>
+    <p><a href="{{ site.repo }}{{ '/blob/main/README.zh.md#用途与法律声明' if lang == 'zh' else '#intended-use--legal' }}">{{ t.use.link }}</a></p>
+  </div>
+</section>

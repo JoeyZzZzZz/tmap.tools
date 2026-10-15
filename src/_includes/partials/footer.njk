@@ -1,0 +1,21 @@
+<footer class="site-foot">
+  <div class="wrap site-foot-in">
+    <div class="foot-brand">
+      <a class="brand" href="{{ prefix }}/"><span class="brand-name">Treasure Map</span></a>
+      <p class="foot-preview">{{ t.footer.preview }}</p>
+    </div>
+    <ul class="foot-links">
+      <li><a href="{{ site.repo }}">{{ t.nav.github }}</a></li>
+      <li><a href="{{ site.repo }}/blob/main/CHANGELOG.md">{{ t.footer.changelog }}</a></li>
+      <li><a href="{{ site.repo }}/blob/main/CONTRIBUTING.md">{{ t.footer.contributing }}</a></li>
+      <li><a href="{{ site.repo }}/issues">{{ t.footer.issues }}</a></li>
+    </ul>
+    <ul class="foot-links">
+      <li><a href="{{ prefix }}/#start">{{ t.nav.start }}</a></li>
+      {%- if showcaseItems.length %}<li><a href="{{ prefix }}/showcase/">{{ t.nav.showcase }}</a></li>{% endif %}
+      {%- if designItems.length %}<li><a href="{{ prefix }}/design/">{{ t.nav.design }}</a></li>{% endif %}
+      <li><a href="{{ tr.url if tr else t.other.href }}" lang="{{ 'en' if lang == 'zh' else 'zh-CN' }}">{{ t.other.label }}</a></li>
+    </ul>
+    <p class="foot-legal">© {{ site.year }} {{ site.author }}. <a href="{{ site.repo }}/blob/main/LICENSE">{{ t.footer.license }}</a>.</p>
+  </div>
+</footer>
