@@ -10,28 +10,73 @@
     i18n = JSON.parse($("#i18n")?.textContent || "{}");
   } catch (e) {}
 
-  /* Light / dark: follows the system until the reader picks one; the choice is remembered. */
+  /* The lamp: light mode is the light on, dark mode the light off. Follows the
+     system until the reader pulls the cord; the choice is remembered. */
   const themeBtn = $("[data-theme-toggle]");
   if (themeBtn) {
     const root = document.documentElement;
     const sysDark = window.matchMedia("(prefers-color-scheme: dark)");
-    const tt = i18n.theme || { dark: "Dark", light: "Light", toDark: "Switch to dark mode", toLight: "Switch to light mode" };
+    const tt = i18n.theme || { label: "Lights", toDark: "Turn the light off", toLight: "Turn the light on" };
     const current = () => root.getAttribute("data-theme") || (sysDark.matches ? "dark" : "light");
     const sync = () => {
       const dark = current() === "dark";
-      themeBtn.textContent = dark ? tt.light : tt.dark;
-      themeBtn.setAttribute("aria-label", dark ? tt.toLight : tt.toDark);
+      themeBtn.setAttribute("aria-checked", String(!dark));
+      themeBtn.title = dark ? tt.toLight : tt.toDark;
       $$('meta[name="theme-color"]').forEach((m) => {
-        m.content = dark ? "#0b0b0b" : "#ffffff";
+        m.content = dark ? "#0d0c0b" : "#fbfaf6";
       });
     };
-    themeBtn.addEventListener("click", () => {
-      const next = current() === "dark" ? "light" : "dark";
+    const apply = (next) => {
       root.setAttribute("data-theme", next);
       try {
         localStorage.setItem("theme", next);
       } catch (e) {}
       sync();
+    };
+    let busy = false;
+    themeBtn.addEventListener("click", () => {
+      if (busy) return;
+      const next = current() === "dark" ? "light" : "dark";
+      // The cord is pulled first; the light answers a beat later, as a real switch does.
+      themeBtn.classList.remove("is-pulled");
+      void themeBtn.offsetWidth;
+      themeBtn.classList.add("is-pulled");
+      if (reduceMotion || !document.startViewTransition) {
+        apply(next);
+        return;
+      }
+      busy = true;
+      const bulb = (themeBtn.querySelector(".lamp-bulb") || themeBtn).getBoundingClientRect();
+      const x = bulb.left + bulb.width / 2;
+      const y = bulb.top + bulb.height / 2;
+      const r = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+      setTimeout(() => {
+        // Light on: the light spreads out from the bulb. Light off: the dark closes in on it.
+        const on = next === "light";
+        root.classList.add("vt-lamp", on ? "vt-on" : "vt-off");
+        const vt = document.startViewTransition(() => apply(next));
+        vt.ready
+          .then(() => {
+            const grow = [`circle(0px at ${x}px ${y}px)`, `circle(${r}px at ${x}px ${y}px)`];
+            root.animate(
+              { clipPath: on ? grow : grow.slice().reverse() },
+              {
+                duration: on ? 620 : 520,
+                easing: on ? "cubic-bezier(0.25, 0.6, 0.2, 1)" : "cubic-bezier(0.6, 0, 0.8, 0.4)",
+                fill: "both",
+                pseudoElement: on ? "::view-transition-new(root)" : "::view-transition-old(root)",
+              },
+            );
+          })
+          .catch(() => {});
+        vt.finished.finally(() => {
+          root.classList.remove("vt-lamp", "vt-on", "vt-off");
+          busy = false;
+        });
+      }, 140);
+    });
+    themeBtn.addEventListener("animationend", (ev) => {
+      if (ev.animationName === "lamp-swing") themeBtn.classList.remove("is-pulled");
     });
     sysDark.addEventListener?.("change", sync);
     sync();
@@ -245,6 +290,25 @@
       lens?.addEventListener("change", () => reorder(lens.value));
       placeDetail();
     }
+  }
+
+  /* Each step of the narrowing chart fills in the first time it comes into view
+     (side by side on a wide screen, so the three run in order). The hiding is keyed
+     to a class this file sets, so without this file nothing is ever hidden. */
+  const reveal = $$("[data-reveal]");
+  if (reveal.length && !reduceMotion && "IntersectionObserver" in window) {
+    document.documentElement.classList.add("reveal-ready");
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (!e.isIntersecting) return;
+          e.target.classList.add("is-in");
+          io.unobserve(e.target);
+        });
+      },
+      { threshold: 0.35 },
+    );
+    reveal.forEach((el) => io.observe(el));
   }
 
   /* Article table of contents: highlight the heading in view */

@@ -15,9 +15,24 @@
         {%- if designItems.length %}
         <li class="nav-sec"><a href="{{ prefix }}/design/"{% if section == 'design' %} aria-current="page"{% endif %}>{{ t.nav.design }}</a></li>
         {%- endif %}
-        <li><a class="nav-gh" href="{{ site.repo }}">{{ t.nav.github }}</a></li>
+        <li class="nav-gh-li"><a class="nav-gh" href="{{ site.repo }}">{{ t.nav.github }}</a></li>
         <li><a class="nav-lang" href="{{ tr.url if tr else t.other.href }}" hreflang="{{ 'en' if lang == 'zh' else 'zh-CN' }}" lang="{{ 'en' if lang == 'zh' else 'zh-CN' }}">{{ t.other.label }}</a></li>
-        <li class="nav-theme-li"><button type="button" class="nav-theme" data-theme-toggle>{{ t.theme.dark }}</button></li>
+        {#- A lamp hanging from the top edge of the page: lit in light mode, out in dark.
+            It is a switch (aria-checked = the light is on); site.js keeps it in sync. #}
+        <li class="nav-theme-li"><button type="button" class="nav-theme" role="switch" aria-checked="true" aria-label="{{ t.theme.label }}" title="{{ t.theme.toDark }}" data-theme-toggle>
+          <svg class="lamp" viewBox="0 0 32 46" aria-hidden="true" focusable="false">
+            <defs><radialGradient id="lamp-glow-fill"><stop offset="0" stop-color="#ffc861" stop-opacity=".75"/><stop offset=".45" stop-color="#ffc861" stop-opacity=".28"/><stop offset="1" stop-color="#ffc861" stop-opacity="0"/></radialGradient></defs>
+            <g class="lamp-swing">
+              <circle class="lamp-glow" cx="16" cy="30" r="15" fill="url(#lamp-glow-fill)"/>
+              <path class="lamp-cord" d="M16 0v14.5"/>
+              <path class="lamp-cap" d="M13.6 14.5h4.8v3.6h-4.8z"/>
+              <path class="lamp-rays" d="M19 34.6l1.8 3.1M16 35.6v3.8M13 34.6l-1.8 3.1"/>
+              <circle class="lamp-bulb" cx="16" cy="29.4" r="3.7"/>
+              <path class="lamp-shade" d="M7 28.4c0-5.9 4-10.3 9-10.3s9 4.4 9 10.3z"/>
+              <g class="lamp-pull"><path class="lamp-string" d="M23.4 28.4v9.6"/><circle class="lamp-bead" cx="23.4" cy="39.7" r="1.75"/></g>
+            </g>
+          </svg>
+        </button></li>
       </ul>
     </nav>
   </div>

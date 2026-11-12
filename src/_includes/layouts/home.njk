@@ -85,6 +85,42 @@ pageKind: home
   </div>
 </section>
 
+{%- if showcaseItems.length %}
+{%- set feat = showcaseItems[0] %}
+<section class="sec sec-feat" id="showcase" aria-labelledby="feat-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 id="feat-title">{{ t.articles.showcaseTitle }}</h2>
+      <p class="sec-intro">{{ t.articles.showcaseLead }}</p>
+    </div>
+    <a class="feat-card{% if feat.data.highlights %} has-points{% endif %}" href="{{ feat.url }}">
+      <span class="feat-main">
+        <span class="feat-mark" aria-hidden="true">{{ m.xmark() }}</span>
+        <span class="feat-title">{{ feat.data.title | sentences | safe }}</span>
+        {%- if feat.data.description %}<span class="feat-desc">{{ feat.data.description }}</span>{% endif %}
+        <span class="feat-meta"><time datetime="{{ feat.date | isoDate }}">{{ feat.date | longDate(lang) }}</time><span class="feat-cta">{{ t.articles.showcaseCta }}</span></span>
+      </span>
+      {%- if feat.data.highlights %}
+      {#- Up to three one-line findings from the article's front matter (highlights: [...]). #}
+      <span class="feat-points">
+        {%- for h in feat.data.highlights | head(3) %}
+        <span class="feat-point"><span class="x-mark" aria-hidden="true"></span><span>{{ h }}</span></span>
+        {%- endfor %}
+      </span>
+      {%- endif %}
+    </a>
+    {%- if showcaseItems.length > 1 %}
+    <ul class="art-list feat-more">
+      {%- for a in showcaseItems.slice(1) | head(3) %}
+      <li><a href="{{ a.url }}"><span class="art-title">{{ a.data.title }}</span>{% if a.data.description %}<span class="art-desc">{{ a.data.description }}</span>{% endif %}<time datetime="{{ a.date | isoDate }}">{{ a.date | longDate(lang) }}</time></a></li>
+      {%- endfor %}
+    </ul>
+    <p class="feat-all"><a href="{{ prefix }}/showcase/">{{ t.articles.all }}</a></p>
+    {%- endif %}
+  </div>
+</section>
+{%- endif %}
+
 <section class="sec" id="map" aria-labelledby="map-title">
   <div class="wrap">
     <div class="sec-head">
@@ -180,43 +216,48 @@ pageKind: home
       </ul>
     </div>
 
-    <figure class="cmp" aria-labelledby="cmp-cap">
+    {%- set cv = converge %}
+    {%- set cvSrc = showcaseItems | byKey(cv.source) %}
+    <figure class="converge" aria-labelledby="cv-cap">
       <div class="panel-top">
-        <p class="panel-label" id="cmp-cap">{{ t.diff.exampleLabel }}</p>
-        <p class="panel-note">{{ t.diff.exampleNote }}</p>
+        <p class="panel-label" id="cv-cap">{{ t.diff.funnelLabel }}</p>
+        <p class="panel-note">{% if cvSrc %}<a href="{{ cvSrc.url }}">{{ t.diff.funnelNote }}</a>{% else %}{{ t.diff.funnelNote }}{% endif %}</p>
       </div>
-      <div class="cmp-panes">
-        {%- for side in ["before", "after"] %}
-        {%- set k = "0x40" if side == "before" else "0x3f" %}
-        <div class="pane pane-{{ side }}">
-          <p class="pane-head"><span class="pane-side">{{ t.diff[side] }}</span> <code>{{ "fw-v1" if side == "before" else "fw-v2" }}</code> <code>httpd</code></p>
-<pre class="code" tabindex="0"><code><span class="t">void</span> <span class="f">FUN_0040b2a4</span>(<span class="t">undefined4</span> param_1)
-{
-  <span class="t">char</span> *pcVar1;
-  <span class="t">char</span> local_48 [<span class="n">64</span>];
-
-  pcVar1 = (<span class="t">char</span> *)<span class="f">websGetVar</span>(param_1,<span class="s">"name"</span>,<span class="s">""</span>);
-  <span class="f">strncpy</span>(local_48,pcVar1,<mark class="chg">{{ k }}</mark>);
-  <span class="f">FUN_0040c118</span>(local_48);
-  <span class="k">return</span>;
-}</code></pre>
-        </div>
+      <ol class="cv-stages">
+        {%- for s in t.diff.stages %}
+        <li class="cv-stage cv-stage-{{ loop.index }}" data-reveal>
+          <p class="cv-head"><span class="cv-k">{{ s.k }}</span><span class="cv-who">{{ s.who }}</span></p>
+          <p class="cv-n"><span class="cv-from">{{ s.from }}</span><span class="cv-to-arrow" aria-hidden="true">→</span><span class="sr-only">{{ "到" if lang == "zh" else "to" }}</span><strong class="cv-to">{{ s.to }}</strong></p>
+          <div class="cv-chart">
+          {%- if loop.index == 1 %}
+            {%- set g = cv.files %}
+            <svg class="cv-svg" viewBox="0 0 {{ g.cols * g.cell }} {{ g.rows * g.cell }}" aria-hidden="true">
+              {%- for q in g.cells %}<rect class="{{ 'cv-on' if q.solid else 'cv-off' }}" x="{{ q.c * g.cell + 3.5 }}" y="{{ q.r * g.cell + 3.5 }}" width="{{ g.cell - 7 }}" height="{{ g.cell - 7 }}"/>{% endfor %}
+            </svg>
+          {%- elif loop.index == 2 %}
+            {%- set g = cv.funcs %}
+            <svg class="cv-svg" viewBox="0 0 {{ g.cols * g.cell }} {{ g.rows * g.cell }}" aria-hidden="true">
+              <defs><pattern id="cv-dots" width="{{ g.cell }}" height="{{ g.cell }}" patternUnits="userSpaceOnUse"><circle class="cv-dot" cx="{{ g.cell / 2 }}" cy="{{ g.cell / 2 }}" r="1.7"/></pattern></defs>
+              <rect width="{{ g.cols * g.cell }}" height="{{ g.rows * g.cell }}" fill="url(#cv-dots)"/>
+              {%- for q in g.solid %}<circle class="cv-on cv-ring" cx="{{ q[0] * g.cell + g.cell / 2 }}" cy="{{ q[1] * g.cell + g.cell / 2 }}" r="4.3"/>{% endfor %}
+            </svg>
+          {%- else %}
+            {%- set g = cv.verdict %}
+            <svg class="cv-svg" viewBox="0 0 {{ g.cols * g.cell }} {{ g.rows * g.cell }}" aria-hidden="true">
+              {%- for q in g.cells %}
+              {%- set x = q.c * g.cell + g.cell / 2 %}{% set y = q.r * g.cell + g.cell / 2 %}
+              {%- if q.hit %}<g class="cv-hit" transform="translate({{ x - 13 }} {{ y - 13 }}) scale(1.444)"><path d="M3.2 3.4c3.1 3.3 7.4 7.9 11.5 11.3M14.6 3.1c-3.6 3.9-7.6 7.7-11.3 11.7"/></g>
+              {%- else %}<circle class="cv-off" cx="{{ x }}" cy="{{ y }}" r="8"/>{% endif %}
+              {%- endfor %}
+            </svg>
+          {%- endif %}
+          </div>
+          <p class="cv-unit">{{ s.unit }}</p>
+          <p class="cv-body">{{ s.body }}</p>
+        </li>
         {%- endfor %}
-      </div>
-      <div class="cmp-read">
-        <div class="read read-bindiff">
-          <p class="read-k">{{ t.diff.bindiff }}</p>
-          <p class="read-v"><code>1.00</code></p>
-        </div>
-        <div class="read read-tmap">
-          <p class="read-k">{{ t.diff.tmapSays }}</p>
-          <ul>
-            <li>{{ m.xmark() }}<span>{{ t.diff.flagSame }}</span></li>
-            <li>{{ m.xmark() }}<span>{{ t.diff.flagConst }} <code class="chg-inline">strncpy() 0x40 → 0x3f</code></span></li>
-          </ul>
-        </div>
-      </div>
-      <p class="cmp-body">{{ t.diff.missesBody | safe }}</p>
+      </ol>
+      <p class="cv-foot">{{ t.diff.funnelFoot }}</p>
     </figure>
 
     <div class="diff-lower">
@@ -226,19 +267,29 @@ pageKind: home
         {%- endfor %}
       </dl>
       <figure class="pview" aria-labelledby="pview-cap">
-        <p class="panel-label" id="pview-cap">{{ t.diff.viewLabel }}</p>
-        {%- for g in t.diff.groups %}
-        <div class="pv-group">
-          <p class="pv-name">{{ g.name }}</p>
-          {%- for r in g.rows %}
-          <p class="pv-row"><code>{{ r[0] }}</code> <code>{{ r[1] }}</code> <span>{{ r[2] }}</span></p>
-          {%- endfor %}
+        <div class="panel-top">
+          <p class="panel-label" id="pview-cap">{{ t.diff.viewLabel }}</p>
+          <p class="panel-note">{{ t.diff.viewNote }}</p>
         </div>
-        {%- endfor %}
-        <div class="pv-group pv-blind">
+        <ol class="pv-list">
+          {%- for g in pview.groups %}
+          {%- set gt = t.diff.viewGroups[g.id] %}
+          <li class="pv-group">
+            <p class="pv-name"><span class="pv-num" aria-hidden="true">{{ loop.index }}</span>{{ gt.name }}</p>
+            <p class="pv-what">{{ gt.what }}</p>
+            <p class="pv-where"><code>{{ g.where | join(" · ") }}</code></p>
+            {%- if g.del %}
+            <pre class="pv-diff" tabindex="0"><code><span class="pv-line pv-del"><span class="pv-sign" aria-hidden="true">−</span><span class="sr-only">{{ t.diff.viewOld }}</span>{% for seg in g.del %}{% if seg[1] %}<del>{{ seg[0] }}</del>{% else %}{{ seg[0] }}{% endif %}{% endfor %}</span><span class="pv-line pv-add"><span class="pv-sign" aria-hidden="true">+</span><span class="sr-only">{{ t.diff.viewNew }}</span>{% for seg in g.add %}{% if seg[1] %}<mark>{{ seg[0] }}</mark>{% else %}{{ seg[0] }}{% endif %}{% endfor %}</span></code></pre>
+            {%- else %}
+            <p class="pv-flag">{{ m.tri("unknown") }}<span>{{ gt.flag }}</span></p>
+            {%- endif %}
+          </li>
+          {%- endfor %}
+        </ol>
+        <div class="pv-blind">
           <p class="pv-name">{{ m.tri("unknown") }}{{ t.diff.blindName }}</p>
-          {%- for r in t.diff.blind %}
-          <p class="pv-row"><code>{{ r[0] }}</code>{% if r[1] %} <code>{{ r[1] }}</code>{% endif %} <span>{{ r[2] }}</span></p>
+          {%- for b in pview.blind %}
+          <p class="pv-brow"><code>{{ b.where | join(" · ") }}</code><span>{{ t.diff.viewBlind[b.id] }}</span></p>
           {%- endfor %}
         </div>
       </figure>
@@ -281,7 +332,8 @@ pageKind: home
           <p>{{ s.body | safe }}</p>
         </div>
         <div class="step-code">
-          {{ m.shell(site.install if s.code == "INSTALL" else s.code, t, s.head, "codeblock-wrap" if s.code == "INSTALL" else "") }}
+          {#- Every step's commands wrap, so on a phone the end of a line never hides under the Copy button. #}
+          {{ m.shell(site.install if s.code == "INSTALL" else s.code, t, s.head, "codeblock-wrap") }}
           {%- if s.prompt %}
           <p class="prompt-label">{{ s.promptLabel }}</p>
           {{ m.copyblock(s.prompt, s.promptLabel, t, "codeblock-prompt") }}
@@ -323,24 +375,24 @@ pageKind: home
       <div class="det det-agents">
         <h3>{{ t.details.agentsTitle }}</h3>
         <p>{{ t.details.agentsBody | safe }}</p>
+        <p class="readme-link"><a href="{{ site.repo }}{{ '/blob/main/README.zh.md' if lang == 'zh' else '#readme' }}">{{ t.details.readme }}</a></p>
       </div>
       <div class="det det-cmds">
         <h3>{{ t.details.commandsTitle }}</h3>
         <dl class="cmds">
           {%- for c in t.details.commands %}
-          <div><dt><code>{{ c[0] }}</code></dt><dd>{{ c[1] }}</dd></div>
+          <div><dt><code>{{ c[0] }}</code></dt><dd>{{ c[1] | safe }}</dd></div>
           {%- endfor %}
         </dl>
       </div>
     </div>
-    <p class="readme-link"><a href="{{ site.repo }}{{ '/blob/main/README.zh.md' if lang == 'zh' else '#readme' }}">{{ t.details.readme }}</a></p>
   </div>
 </section>
 
-{%- if blogItems.length or showcaseItems.length or designItems.length %}
-<section class="sec sec-articles" id="articles" aria-label="{{ t.articles.blogTitle }}, {{ t.articles.showcaseTitle }}, {{ t.articles.designTitle }}">
+{%- if designItems.length %}
+<section class="sec sec-articles" id="articles" aria-label="{{ t.articles.designTitle }}">
   <div class="wrap articles-grid">
-    {%- for group in [["blog", blogItems, t.articles.blogTitle, t.articles.blogIntro], ["showcase", showcaseItems, t.articles.showcaseTitle, t.articles.showcaseIntro], ["design", designItems, t.articles.designTitle, t.articles.designIntro]] %}
+    {%- for group in [["design", designItems, t.articles.designTitle, t.articles.designIntro]] %}
     {%- if group[1].length %}
     <div class="art-col">
       <h2><a href="{{ prefix }}/{{ group[0] }}/">{{ group[2] }}</a></h2>

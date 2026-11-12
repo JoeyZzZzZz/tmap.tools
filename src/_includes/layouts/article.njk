@@ -10,7 +10,7 @@ pageKind: article
 <article class="article{% if headings.length > 2 %} has-toc{% endif %}">
   <header class="wrap art-head">
     <p class="art-crumb"><a href="{{ prefix }}/{{ section }}/">{{ sectionTitle }}</a></p>
-    <h1>{{ title }}</h1>
+    <h1>{{ title | sentences | safe }}</h1>
     {%- if description %}<p class="art-lede">{{ description }}</p>{% endif %}
     <p class="art-meta">
       <span>{{ t.articles.published }} <time datetime="{{ page.date | isoDate }}">{{ page.date | longDate(lang) }}</time></span>

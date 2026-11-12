@@ -18,8 +18,8 @@
 <link rel="alternate" hreflang="{{ 'zh-CN' if lang == 'zh' else 'en' }}" href="{{ site.url }}{{ page.url }}">
 <link rel="alternate" hreflang="{{ 'en' if lang == 'zh' else 'zh-CN' }}" href="{{ site.url }}{{ tr.url }}">
 {%- endif %}
-<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0b0b0b" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#fbfaf6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d0c0b" media="(prefers-color-scheme: dark)">
 <meta name="color-scheme" content="light dark">
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -43,7 +43,7 @@
       if (t === "light" || t === "dark") {
         d.setAttribute("data-theme", t);
         document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) {
-          m.content = t === "dark" ? "#0b0b0b" : "#ffffff";
+          m.content = t === "dark" ? "#0d0c0b" : "#fbfaf6";
         });
       }
     } catch (e) {}

@@ -12,7 +12,8 @@
 
 {% macro shell(code, t, label="", cls="") -%}
 <div class="codeblock codeblock-shell {{ cls }}">
-  <pre tabindex="0"><code>{% for line in code.split("\n") %}<span class="ln"><span class="prompt" aria-hidden="true">$ </span>{{ line }}</span>{% endfor %}</code></pre>
+  {#- A long URL may wrap after a slash ("…/releases/" | "latest/…"), never inside a word. #}
+  <pre tabindex="0"><code>{% for line in code.split("\n") %}<span class="ln"><span class="prompt" aria-hidden="true">$ </span>{{ line | escape | replace("/", "/<wbr>") | safe }}</span>{% endfor %}</code></pre>
   <button class="copy-btn" type="button" data-copy data-copy-text="{{ code }}" aria-label="{{ t.copy }}{% if label %}: {{ label }}{% endif %}"><span class="copy-label">{{ t.copy }}</span></button>
 </div>
 {%- endmacro %}
