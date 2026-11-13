@@ -22,13 +22,13 @@ export default {
       taglineTool: "Treasure Map draws the map;",
       taglineAgent: "your agent finds the treasure.",
       lede:
-        "Treasure Map turns an unpacked firmware filesystem into facts your coding agent reads through a bundled MCP server: every dangerous call it recognizes, and where the data reaching that call comes from. Where it could not work something out, it says so. Every fact points at an exact binary, function and address.",
+        "Treasure Map turns an unpacked firmware filesystem into facts your coding agent reads through a bundled MCP server: every dangerous call it recognizes, and where the data reaching that call comes from. Where it could not work something out, it says so. Give it two versions and it shows what the update changed around those calls. It runs no model and needs no API key.",
       installLabel: "Install",
       installNote:
-        "Installs the <code>tmap</code> command, then <code>tmap init</code> sets up the toolchain and registers the MCP server with your agents. No API key.",
+        "Installs the <code>tmap</code> command, then <code>tmap init</code> sets up the toolchain, registers the MCP server with your agents and installs the diff-review skill. Restart your agent when it finishes.",
       ctaStart: "Quick start",
       ctaRepo: "Source on GitHub",
-      worksWith: "Works with any agent that speaks MCP, such as Claude Code, Codex, Cursor and DeepSeek Harness.",
+      worksWith: "Works with any agent that speaks MCP. <code>tmap init</code> sets up Claude Code, Codex, Cursor, Claude Desktop and dsh for you.",
     },
 
     arch: {
@@ -133,11 +133,11 @@ export default {
     diff: {
       title: "The patch diff",
       intro:
-        "<code>tmap diff</code> compares every binary whose content changed, in parallel, running Ghidra, BinExport and BinDiff end to end. You never handle an intermediate file. Your agent then reviews only the functions that changed, and works through three questions:",
+        "<code>tmap diff</code> compares every binary whose content changed, in parallel, running Ghidra, BinExport and BinDiff end to end. You never handle an intermediate file. Your agent reads the few changes that matter instead of thousands of functions, and answers three questions:",
       questions: [
-        "Is this a security fix, and which 1-day in the old version does it close?",
-        "Is the fix complete, or does the same call survive somewhere else?",
-        "Can the new check be bypassed?",
+        "Is this a security fix, and which weakness in the old version does it close?",
+        "Is the fix complete?",
+        "Does the same call survive somewhere else?",
       ],
       funnelLabel: "How one real diff narrowed down",
       funnelNote: "Counts from the showcase run.",
@@ -172,19 +172,19 @@ export default {
       points: [
         {
           head: "A function-level patch view.",
-          body: "One entry per changed function pair, grouped by what happened around its dangerous calls: a call that now goes somewhere else, a dangerous call that is still there, a reading that could not be decided. An optional ordering puts the entries most likely to matter first.",
+          body: "One entry per changed function pair, grouped by what happened around its dangerous calls: a call that now goes somewhere else, a dangerous call that is still there, a reading that could not be decided. A function with no counterpart stays undetermined, never “removed” or “added”.",
         },
         {
-          head: "Blind spots on the record.",
-          body: "A binary that could not be diffed is listed as such, never counted as unchanged. A function with no counterpart is undetermined, since it may have been inlined or moved, and is never reported as removed or added.",
+          head: "What a similarity score misses.",
+          body: "BinDiff can read <code>similarity=1.0</code> while a buffer length went from <code>0x40</code> to <code>0x3f</code>. Treasure Map compares address-normalized pseudocode and flags a changed length constant at a copy or format call.",
         },
         {
-          head: "Non-binary files too.",
-          body: "Scripts, configs and web files are compared by path between the two versions, and your agent can record a judgment on each file.",
+          head: "A review that knows what it skipped.",
+          body: "The server picks the must-read changes, hands them out in work units and counts what has been judged. An unread change stays unread, never “nothing found”, and the review is not complete until the must-read list is done.",
         },
         {
-          head: "Judgments go back on the map.",
-          body: "Your agent records on each entry whether the change does something real, and can carry that judgment over to the affected candidate in the firmware map.",
+          head: "Scripts and configs too.",
+          body: "Non-binary files are compared by path between the two versions, and your agent can judge each one. A binary that could not be diffed is listed as such, never counted as unchanged.",
         },
       ],
       viewLabel: "Example: the patch view, grouped",
@@ -206,7 +206,7 @@ export default {
     why: {
       title: "Why facts, not verdicts",
       intro:
-        "A scanner hands you findings and a severity score, a verdict you then have to trust or re-check. A modern agent already reads and reasons about one function well. What it cannot do is cover a whole root filesystem, or every changed binary between two releases, the same way twice, or say where it did not look. That is the half Treasure Map does.",
+        "A scanner hands you findings and a severity score, a verdict you then have to trust or re-check. A modern agent already reads one function well. What it cannot do on its own is cover a whole root filesystem (a hundred binaries, tens of thousands of functions) the same way twice, or tell you what it never looked at. So it stops after the first few leads, or reports “nothing found” for code it never read. That is the half Treasure Map does.",
       items: [
         {
           sym: "unknown",
@@ -231,45 +231,36 @@ export default {
       steps: [
         {
           head: "Install",
-          body: "One command installs Treasure Map; on the command line it is <code>tmap</code>. It then runs <code>tmap init</code>, which sets up JDK 21, Ghidra 11.4.3, BinExport and BinDiff 8, reusing what you already have, and registers the MCP server with the agents you pick. Restart your agent when it finishes.",
+          body: "One command installs Treasure Map; on the command line it is <code>tmap</code>. It then runs <code>tmap init</code>, which sets up JDK 21, Ghidra 11.4.3, BinExport and BinDiff 8, reusing what you already have, registers the MCP server with the agents you pick and installs the diff-review skill for those that read skills. Restart your agent when it finishes.",
           code: "INSTALL",
           lang: "shell",
         },
         {
           head: "Map a firmware",
-          body: "The input is an already-extracted filesystem. Unpack the image first with any extraction tool you like.",
+          body: "The input is an already-extracted filesystem: unpack the image with any tool you like, or ask your agent to. <code>-w</code> is the name you give it.",
           code: "tmap scan ./firmware.extracted -w my-fw",
           lang: "shell",
           promptLabel: "Then ask your agent",
           prompt:
-            "Audit firmware my-fw using treasure-map.\nChoose for yourself which views of its candidate map to review (by sink, by data source, or by any other layer) and find the issues in them: open a lead’s pseudocode, trace where its input comes from, and judge it yourself.\nThe candidates are leads to verify, not confirmed bugs.\nRecord each conclusion with annotate so the next session starts from it.\nEnd with the leads worth following up, each with its evidence_ref and why.",
+            "Audit firmware my-fw with Treasure Map.\nEnd with the leads worth following up, each with its evidence_ref and why.",
         },
         {
-          head: "Or diff two versions",
+          head: "Diff two versions",
           body: "Scan both releases, then compare them. A firmware pair splits into one diff per changed binary; the non-binary files are compared on their own.",
           code: "tmap scan ./fw_v1.extracted -w fw-v1\ntmap scan ./fw_v2.extracted -w fw-v2\ntmap diff --before fw-v1 --after fw-v2",
           lang: "shell",
           promptLabel: "Then ask your agent",
           prompt:
-            "Review the firmware diff fw-v1 → fw-v2 using treasure-map, starting from start_diff_review, across every changed binary and the non-binary files.\nJudge whether each change does something real; say inconclusive when you cannot tell.\nFor a real one: what weakness in fw-v1 does it address, and does the same pattern survive elsewhere?\nRecord each judgment with annotate_diff, and end with what you reviewed, what you did not reach or could not diff, and the changes that look security-relevant.",
+            "Review the firmware diff fw-v1 → fw-v2 with Treasure Map:\nfind the security fixes, judge whether each one is complete,\nand check whether the new code adds attack surface.",
         },
       ],
-      after:
-        "That is all you run by hand. <code>scan</code> is the slow part: one Ghidra pass per binary, with progress shown. Re-running with the same <code>-w</code> resumes where it stopped; a different <code>-w</code> keeps another firmware alongside. Everything you scan and diff accumulates in one atlas, and the agent picks which firmware or diff to work on, with no reconfiguration per scan.",
+      after: [
+        "<code>scan</code> is the slow part: one Ghidra pass per binary, with progress shown. Re-running with the same <code>-w</code> resumes where it stopped. Everything you scan and diff accumulates in one atlas (<code>~/.treasure-map/atlas.db</code>), and your agent picks which firmware or diff to work on.",
+      ],
     },
 
     details: {
       title: "Install details",
-      toolchainTitle: "Toolchain",
-      toolchainNote:
-        "<code>tmap init</code> installs these for you, or reuses what you already have if it passes the checks. Downloads come from pinned URLs and are checked against a pinned size and sha256 before anything is unpacked.",
-      toolchainHead: ["Tool", "Version", "Used for"],
-      toolchain: [
-        ["JDK", "21 (a JDK, not a JRE)", "running Ghidra (JDK 11/17 make Ghidra 11.4.3 fail to launch)"],
-        ["Ghidra", "11.4.3", "decompiling every binary, headless"],
-        ["BinExport", "for Ghidra 11.4.3", "exporting binaries for <code>tmap diff</code>"],
-        ["BinDiff", "8", "matching functions between two versions"],
-      ],
       platformsTitle: "Platforms",
       platforms: [
         ["Linux x86_64, including WSL2", "Supported", "yes"],
@@ -277,16 +268,17 @@ export default {
         ["macOS on Intel", "Runs the same toolchain; not acceptance-tested", "unknown"],
         ["Linux arm64, native Windows", "Not supported: no Ghidra decompiler or BinDiff build. On Windows use WSL2", "no"],
       ],
-      agentsTitle: "Agents",
-      agentsBody:
-        "<code>tmap init</code> lists Claude Code, Codex, Cursor, Claude Desktop and DeepSeek Harness, pre-selects those installed, and registers the server for the ones you keep. Any other MCP client can run <code>tmap mcp</code> from its JSON config.",
-      commandsTitle: "Day to day",
+      setupTitle: "Setup",
+      setup: [
+        "Downloads come from pinned URLs and are checked against a pinned size and sha256 before anything is unpacked. <code>tmap init</code> shows its plan and changes nothing until you confirm; <code>--dry-run</code> only prints it.",
+        "It registers the MCP server with Claude Code, Codex, Cursor, Claude Desktop and dsh. Any other MCP client runs <code>tmap mcp</code> from its config.",
+      ],
+      commandsTitle: "Upkeep",
       commands: [
-        ["tmap runs", "Lists every firmware you have scanned, and which ones an upgrade would redo."],
-        ["tmap doctor", "Re-runs every check and writes nothing."],
-        ["tmap update", "Installs the newest version and re-runs <code>tmap init</code>."],
-        ["tmap rescan", "Re-scans every run an older version made."],
-        ["tmap uninstall", "Removes the agent entries and the toolchain <code>tmap init</code> downloaded. Your atlas and workspaces stay."],
+        ["tmap doctor", "Check the toolchain, config and agent registrations. Changes nothing."],
+        ["tmap update", "Install the newest version, then run its <code>tmap init</code>."],
+        ["tmap rescan", "Re-scan the firmware the new version would map differently."],
+        ["tmap uninstall", "Remove what <code>tmap init</code> installed. Your data stays."],
       ],
       readme: "Full flags, manual registration and troubleshooting are in the README.",
     },
@@ -353,12 +345,12 @@ export default {
       taglineTool: "Treasure Map 画地图，",
       taglineAgent: "你的 agent 去寻宝。",
       lede:
-        "Treasure Map 把解包后的固件文件系统整理成一组事实，通过内置的 MCP 服务器交给你的编程 agent：它识别出的每一处危险调用，以及流进这些调用的数据从哪里来。没能查清的地方，它会明确写出来。每条事实都指向具体的二进制、函数和地址。",
+        "Treasure Map 把解包后的固件文件系统整理成一组事实，通过内置的 MCP 服务器交给你的编程 agent：它识别出的每一处危险调用，以及流进这些调用的数据从哪里来。没能查清的地方，它会明确写出来。给它两个版本，它会标出这次更新在这些调用附近改了什么。它不运行任何模型，也不需要 API key。",
       installLabel: "安装",
-      installNote: "装好 <code>tmap</code> 命令后自动运行 <code>tmap init</code>，配置工具链并把 MCP 服务器注册到你的 agent。不需要 API key。",
+      installNote: "装好 <code>tmap</code> 命令后自动运行 <code>tmap init</code>：配置工具链，把 MCP 服务器注册到你的 agent，并装上 diff 审查 skill。完成后重启 agent。",
       ctaStart: "快速开始",
       ctaRepo: "GitHub 源码",
-      worksWith: "任何支持 MCP 的 agent 都能用，例如 Claude Code、Codex、Cursor 和 DeepSeek Harness。",
+      worksWith: "任何支持 MCP 的 agent 都能用；Claude Code、Codex、Cursor、Claude Desktop 和 dsh 由 <code>tmap init</code> 直接配好。",
     },
 
     arch: {
@@ -454,11 +446,11 @@ export default {
     diff: {
       title: "补丁对比",
       intro:
-        "<code>tmap diff</code> 会并行对比所有内容有变化的二进制，从 Ghidra、BinExport 到 BinDiff 全程自动完成，你不用碰任何中间文件。之后 agent 只审改过的函数，并回答三个问题：",
+        "<code>tmap diff</code> 会并行对比所有内容有变化的二进制，从 Ghidra、BinExport 到 BinDiff 全程自动完成，你不用碰任何中间文件。agent 不用在几千个函数里大海捞针，只读真正要紧的那几处改动，并回答三个问题：",
       questions: [
-        "这是不是安全修补？它修掉的是旧版本里的哪个 1-day 漏洞？",
-        "修得完不完整，同样的调用是不是还留在别处？",
-        "新加的检查能不能被绕过？",
+        "这是不是一次安全修复？它修掉的是旧版本里的哪个弱点？",
+        "修得完不完整？",
+        "同样的调用是不是还留在别处？",
       ],
       funnelLabel: "一次真实对比是怎么收敛的",
       funnelNote: "数字来自案例里的那次运行。",
@@ -492,19 +484,19 @@ export default {
       points: [
         {
           head: "函数级补丁视图。",
-          body: "每对改动过的函数一条，按危险调用附近发生了什么分组：调用的目标换了，危险调用还在原处，或者无法判定。可选的排序会把最可能重要的条目放在前面。",
+          body: "每对改动过的函数一条，按危险调用附近发生了什么分组：调用的目标换了，危险调用还在原处，或者无法判定。找不到对应函数的标为“未定”，绝不报成“删除”或“新增”。",
         },
         {
-          head: "盲区写在明处。",
-          body: "没能对比的二进制会单独列出，绝不计为“没变”。找不到对应函数的，标为“未定”（可能被内联或挪走了），绝不报成“删除”或“新增”。",
+          head: "相似度看不到的改动。",
+          body: "BinDiff 可能显示 <code>similarity=1.0</code>，而缓冲区长度已经从 <code>0x40</code> 改成了 <code>0x3f</code>。Treasure Map 额外比较地址归一化后的伪代码，并标出拷贝或格式化调用处被改动的长度常量。",
         },
         {
-          head: "非二进制文件也比。",
-          body: "两个版本的脚本、配置和 web 文件按路径对比，agent 可以对每个文件记录判断。",
+          head: "知道自己漏了什么的审查。",
+          body: "服务器挑出必读的改动，按工作单元分发，并统计判过了多少。没读的改动就是“未读”，绝不算“没发现问题”；必读清单没读完，审查就不算完成。",
         },
         {
-          head: "判断能带回地图。",
-          body: "agent 在每个条目上记录这处改动有没有实际作用，并可以把判断带到固件地图里对应的候选上。",
+          head: "脚本和配置也比。",
+          body: "非二进制文件按路径对比两个版本，每个文件都可以单独判断。没能对比的二进制会单独列出，绝不计为“没变”。",
         },
       ],
       viewLabel: "示例：分好组的补丁视图",
@@ -526,7 +518,7 @@ export default {
     why: {
       title: "为什么只给事实，不给结论",
       intro:
-        "扫描器给你的是发现和严重程度评分，也就是一个结论，你要么信，要么自己再查一遍。如今的 agent 单看一个函数，已经读得懂、想得清；它做不到的，是把整个根文件系统、或者两个版本之间所有改动过的二进制，每次都按同样的方式过一遍，并且说清自己哪里没看。这部分交给 Treasure Map。",
+        "扫描器给你的是发现和严重程度评分，也就是一个结论，你要么信，要么自己再查一遍。如今的 agent 单看一个函数，已经读得懂、想得清；它自己做不到的，是把整个根文件系统（上百个二进制、几万个函数）每次都按同样的方式过一遍，并且说清自己哪里没看。于是它常常看完头几条线索就下结论，或者对根本没读过的代码报“没发现问题”。这一半由 Treasure Map 来做。",
       items: [
         { sym: "unknown", head: "“未知”绝不等于“安全”。", body: "没能确认的事实就保持“未知”；对比失败的二进制绝不显示为“没变”。" },
         {
@@ -547,45 +539,36 @@ export default {
       steps: [
         {
           head: "安装",
-          body: "一条命令装好 Treasure Map，命令行里它叫 <code>tmap</code>。随后自动运行 <code>tmap init</code>：配置 JDK 21、Ghidra 11.4.3、BinExport 和 BinDiff 8（已经装好的直接复用），并把 MCP 服务器注册到你选择的 agent。完成后重启你的 agent。",
+          body: "一条命令装好 Treasure Map，命令行里它叫 <code>tmap</code>。随后自动运行 <code>tmap init</code>：配置 JDK 21、Ghidra 11.4.3、BinExport 和 BinDiff 8（已经装好的直接复用），把 MCP 服务器注册到你选择的 agent，并给能读取 skill 的 agent 装上 diff 审查 skill。完成后重启你的 agent。",
           code: "INSTALL",
           lang: "shell",
         },
         {
           head: "给一个固件画地图",
-          body: "输入是已经解包的文件系统，请先用你习惯的工具解包固件镜像。",
+          body: "输入是已经解包的文件系统（用你习惯的工具解包，或者让 agent 来解）。<code>-w</code> 是你给这个固件起的名字。",
           code: "tmap scan ./firmware.extracted -w my-fw",
           lang: "shell",
           promptLabel: "然后对你的 agent 说",
           prompt:
-            "用 treasure-map 审计固件 my-fw。\n自己决定看候选地图的哪些视图（按 sink、按数据来源或其他任何图层），从中找出问题：\n打开线索的伪代码，追查它的输入从哪来，自己做判断。\n候选是待验证的线索，不是确认的漏洞。\n每条结论都用 annotate 记录下来，下次会话从这里接着做。\n最后列出值得跟进的线索，每条附上 evidence_ref 和理由。",
+            "用 Treasure Map 审计固件 my-fw。\n最后列出值得跟进的线索，每条附上 evidence_ref 和理由。",
         },
         {
-          head: "或者对比两个版本",
+          head: "对比两个版本",
           body: "先分别扫描两个版本，再对比。一对固件会按二进制分成多个对比，非二进制文件单独对比。",
           code: "tmap scan ./fw_v1.extracted -w fw-v1\ntmap scan ./fw_v2.extracted -w fw-v2\ntmap diff --before fw-v1 --after fw-v2",
           lang: "shell",
           promptLabel: "然后对你的 agent 说",
           prompt:
-            "用 treasure-map 审查固件对比 fw-v1 → fw-v2，从 start_diff_review 开始，覆盖每个有变化的二进制和非二进制文件。\n判断每处改动有没有实际作用；判断不了就标为 inconclusive。\n对有实际作用的改动：它针对 fw-v1 的什么弱点，同样的写法在别处还在不在？\n每个判断都用 annotate_diff 记录下来。\n最后说明看了哪些、哪些没看到或没能对比，以及哪些改动看起来和安全相关。",
+            "用 Treasure Map 审查固件对比 fw-v1 → fw-v2：\n找出其中的安全修复，判断每处修得是否完整，\n并检查新代码有没有引入新的攻击面。",
         },
       ],
-      after:
-        "需要你手动运行的就这些。<code>scan</code> 是最慢的一步：每个二进制跑一遍 Ghidra，会显示进度。用同一个 <code>-w</code> 重新运行会从中断处继续；换一个 <code>-w</code> 就能并排保存另一个固件。你扫过、比过的所有结果都积累在同一个 atlas 里，由 agent 自己选择看哪个固件、哪次对比，每次扫描后都不用重新配置。",
+      after: [
+        "<code>scan</code> 是最慢的一步：每个二进制跑一遍 Ghidra，会显示进度；用同一个 <code>-w</code> 重新运行会从中断处继续。你扫过、比过的所有结果都积累在同一个 atlas（<code>~/.treasure-map/atlas.db</code>）里，由 agent 自己选择看哪个固件、哪次对比。",
+      ],
     },
 
     details: {
       title: "安装细节",
-      toolchainTitle: "工具链",
-      toolchainNote:
-        "<code>tmap init</code> 会替你安装这些工具；你已有的版本只要通过检查，就直接复用。所有下载都来自固定的 URL，解压前会校验固定的文件大小和 sha256。",
-      toolchainHead: ["工具", "版本", "用途"],
-      toolchain: [
-        ["JDK", "21（必须是 JDK，不是 JRE）", "运行 Ghidra（用 JDK 11/17 时 Ghidra 11.4.3 无法启动）"],
-        ["Ghidra", "11.4.3", "无界面反编译每个二进制"],
-        ["BinExport", "对应 Ghidra 11.4.3", "为 <code>tmap diff</code> 导出二进制"],
-        ["BinDiff", "8", "在两个版本之间匹配函数"],
-      ],
       platformsTitle: "平台",
       platforms: [
         ["Linux x86_64（含 WSL2）", "支持", "yes"],
@@ -593,16 +576,17 @@ export default {
         ["Intel 的 macOS", "使用同一套工具链，未做验收测试", "unknown"],
         ["Linux arm64、原生 Windows", "不支持：Ghidra 反编译器和 BinDiff 都没有对应的构建。Windows 请用 WSL2", "no"],
       ],
-      agentsTitle: "Agent",
-      agentsBody:
-        "<code>tmap init</code> 会列出 Claude Code、Codex、Cursor、Claude Desktop 和 DeepSeek Harness，本机已安装的默认勾选，并为你保留的 agent 注册服务器。其他 MCP 客户端，在 JSON 配置里把启动命令写成 <code>tmap mcp</code> 即可。",
-      commandsTitle: "日常命令",
+      setupTitle: "安装",
+      setup: [
+        "所有下载都来自固定的 URL，解压前校验固定的文件大小和 sha256。<code>tmap init</code> 会先列出计划，你确认之前不做任何改动；<code>--dry-run</code> 只打印计划。",
+        "MCP 服务器可以直接注册到 Claude Code、Codex、Cursor、Claude Desktop 和 dsh；其他 MCP 客户端，在配置里把启动命令写成 <code>tmap mcp</code> 即可。",
+      ],
+      commandsTitle: "日常维护",
       commands: [
-        ["tmap runs", "按你起的名字列出扫过的所有固件，并标出升级后哪些需要重做。"],
-        ["tmap doctor", "重新运行所有检查，不写入任何内容。"],
-        ["tmap update", "装上最新版，并重新运行 <code>tmap init</code>。"],
-        ["tmap rescan", "用当前版本重扫所有由旧版本生成的 run。"],
-        ["tmap uninstall", "移除 agent 里的条目和 <code>tmap init</code> 下载的工具链。你的 atlas 和工作区会保留。"],
+        ["tmap doctor", "检查工具链、配置和 agent 注册情况，不做任何改动。"],
+        ["tmap update", "装上最新版本，再运行它的 <code>tmap init</code>。"],
+        ["tmap rescan", "升级后，重扫新版本会扫出不同结果的固件。"],
+        ["tmap uninstall", "移除 <code>tmap init</code> 装的东西；你的数据会保留。"],
       ],
       readme: "完整的参数、手动注册方式和故障排查，见 README。",
     },

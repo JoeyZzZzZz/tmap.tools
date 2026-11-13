@@ -98,13 +98,17 @@ pageKind: home
         <span class="feat-mark" aria-hidden="true">{{ m.xmark() }}</span>
         <span class="feat-title">{{ feat.data.title | sentences | safe }}</span>
         {%- if feat.data.description %}<span class="feat-desc">{{ feat.data.description }}</span>{% endif %}
+        {%- if feat.data.stats %}
+        <span class="feat-stats">{% for st in feat.data.stats %}<span>{{ st }}</span>{% endfor %}</span>
+        {%- endif %}
         <span class="feat-meta"><time datetime="{{ feat.date | isoDate }}">{{ feat.date | longDate(lang) }}</time><span class="feat-cta">{{ t.articles.showcaseCta }}</span></span>
       </span>
       {%- if feat.data.highlights %}
-      {#- Up to three one-line findings from the article's front matter (highlights: [...]). #}
+      {#- Up to three findings from the article's front matter: highlights: [{ head, body }]
+          (a plain string still works). The head is the finding; the body is its evidence. #}
       <span class="feat-points">
         {%- for h in feat.data.highlights | head(3) %}
-        <span class="feat-point"><span class="x-mark" aria-hidden="true"></span><span>{{ h }}</span></span>
+        <span class="feat-point"><span class="x-mark" aria-hidden="true"></span><span>{% if h.head %}<b class="fp-head">{{ h.head }}</b>{{ "" if lang == "zh" else " " }}{{ h.body }}{% else %}{{ h }}{% endif %}</span></span>
         {%- endfor %}
       </span>
       {%- endif %}
@@ -263,7 +267,7 @@ pageKind: home
     <div class="diff-lower">
       <dl class="points">
         {%- for p in t.diff.points %}
-        <div><dt>{{ p.head }}</dt><dd>{{ p.body }}</dd></div>
+        <div><dt>{{ p.head }}</dt><dd>{{ p.body | safe }}</dd></div>
         {%- endfor %}
       </dl>
       <figure class="pview" aria-labelledby="pview-cap">
@@ -342,7 +346,11 @@ pageKind: home
       </li>
       {%- endfor %}
     </ol>
-    <p class="start-after">{{ t.start.after | safe }}</p>
+    <div class="start-after">
+      {%- for para in t.start.after %}
+      <p>{{ para | safe }}</p>
+      {%- endfor %}
+    </div>
   </div>
 </section>
 
@@ -350,40 +358,41 @@ pageKind: home
   <div class="wrap">
     <div class="sec-head">
       <h2 id="details-title">{{ t.details.title }}</h2>
+      {#- Up front: what follows is the short version, and where the full reference is. #}
+      {%- set readmeUrl = site.repo + ('/blob/main/README.zh.md' if lang == 'zh' else '#readme') %}
+      <p class="sec-intro">{{ t.details.readme | replace("README", '<a href="' + readmeUrl + '">README</a>') | safe }}</p>
     </div>
-    <div class="details-grid">
-      <div class="det det-tool">
-        <h3>{{ t.details.toolchainTitle }}</h3>
-        <p>{{ t.details.toolchainNote | safe }}</p>
-        <div class="table-wrap"><table>
-          <thead><tr>{% for h in t.details.toolchainHead %}<th scope="col">{{ h }}</th>{% endfor %}</tr></thead>
-          <tbody>
-            {%- for r in t.details.toolchain %}
-            <tr><th scope="row">{{ r[0] }}</th><td>{{ r[1] }}</td><td>{{ r[2] | safe }}</td></tr>
+    {#- A short spec sheet: only what helps decide whether to install (where it runs, what
+        setup does, how to keep it current and remove it). Everything else is in the README,
+        linked above. One full-width row per subject, label in the left margin. #}
+    <div class="spec">
+      <div class="spec-row">
+        <h3 class="spec-k">{{ t.details.platformsTitle }}</h3>
+        <div class="spec-v">
+          <ul class="plat">
+            {%- for p in t.details.platforms %}
+            <li>{{ m.tri(p[2]) }}<span class="plat-name">{{ p[0] }}</span><span class="plat-state">{{ p[1] }}</span></li>
             {%- endfor %}
-          </tbody>
-        </table></div>
+          </ul>
+        </div>
       </div>
-      <div class="det det-plat">
-        <h3>{{ t.details.platformsTitle }}</h3>
-        <ul class="plat">
-          {%- for p in t.details.platforms %}
-          <li>{{ m.tri(p[2]) }}<span class="plat-name">{{ p[0] }}</span><span class="plat-state">{{ p[1] }}</span></li>
+      <div class="spec-row">
+        <h3 class="spec-k">{{ t.details.setupTitle }}</h3>
+        <div class="spec-v">
+          {%- for para in t.details.setup %}
+          <p class="spec-text">{{ para | safe }}</p>
           {%- endfor %}
-        </ul>
+        </div>
       </div>
-      <div class="det det-agents">
-        <h3>{{ t.details.agentsTitle }}</h3>
-        <p>{{ t.details.agentsBody | safe }}</p>
-        <p class="readme-link"><a href="{{ site.repo }}{{ '/blob/main/README.zh.md' if lang == 'zh' else '#readme' }}">{{ t.details.readme }}</a></p>
-      </div>
-      <div class="det det-cmds">
-        <h3>{{ t.details.commandsTitle }}</h3>
-        <dl class="cmds">
-          {%- for c in t.details.commands %}
-          <div><dt><code>{{ c[0] }}</code></dt><dd>{{ c[1] | safe }}</dd></div>
-          {%- endfor %}
-        </dl>
+      <div class="spec-row">
+        <h3 class="spec-k">{{ t.details.commandsTitle }}</h3>
+        <div class="spec-v">
+          <dl class="cmds">
+            {%- for c in t.details.commands %}
+            <div><dt><code>{{ c[0] }}</code></dt><dd>{{ c[1] | safe }}</dd></div>
+            {%- endfor %}
+          </dl>
+        </div>
       </div>
     </div>
   </div>

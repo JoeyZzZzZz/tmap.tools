@@ -2,9 +2,16 @@
 title: "CVE-2021-26614 was “fixed”. The backdoor never left."
 description: "A budget general-purpose model with Treasure Map reads the ipTIME C200 patch from 1.058 to 1.060 for about a dollar: three changes that look like security fixes, and not one of them finishes the job. All 144 must-read items were judged; the 3358 it skipped are on the record."
 highlights:
-  - "The only security fix deleted the backdoor’s entry; the handler and its hardcoded token are still there, and still in 1.094 five years on"
-  - "A change that looks like an overflow fix only enlarged the buffer; the copy into it still checks no length"
-  - "Validation was added in the browser only; the server CGI didn’t change by a byte, and a field on the same form that reaches a root command is unchecked on both ends"
+  - head: "The backdoor was unlinked, not removed."
+    body: "Its handler, hardcoded token and command execution are still in the latest firmware, 1.094 (June 2026)."
+  - head: "The buffer got bigger, not safer."
+    body: "The copy into it still takes a length the client decides."
+  - head: "Validation was added only in the browser."
+    body: "The server CGI is byte-identical in both versions."
+stats:
+  - "4 of 110 binaries changed"
+  - "144 of 144 must-read items judged"
+  - "US$0.5–1 per run"
 date: 2026-11-08
 translationKey: iptime-c200-patch-diff
 ---
@@ -342,7 +349,7 @@ tmap diff --before fw_1 --after fw_2
 
 The `300000` in the paths is the squashfs offset inside the image. The directory binwalk produces may be named differently, so adjust it to whatever you have locally.
 
-Once the diff is done, point your agent at the queue (the installer’s `tmap init` already registered the MCP server). The task given in this run was one sentence: **Compare these two firmware versions, find which vulnerabilities were patched, say whether each fix is complete, and whether new code introduced new vulnerabilities or attack surface.**
+Once the diff is done, point your agent at the queue (the installer’s `tmap init` already registered the MCP server and installed the diff-review skill). The task given in this run was one sentence: **Compare these two firmware versions, find which vulnerabilities were patched, say whether each fix is complete, and whether new code introduced new vulnerabilities or attack surface.**
 
 You should see 106 binaries skipped as byte-identical and 4 going into the comparison; the main function of `iux_get.cgi` short one branch while the backdoor handler stays; a stack buffer in `Challenge` enlarged while the copy still has no bound; and two frontend whitelists with nothing to match them on the server.
 
