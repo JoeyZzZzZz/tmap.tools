@@ -25,7 +25,7 @@ pageKind: home
         <a class="btn btn-primary" href="#start">{{ t.hero.ctaStart }}</a>
         <a class="btn" href="{{ site.repo }}">{{ t.hero.ctaRepo }}</a>
       </p>
-      <p class="hero-works">{{ t.hero.worksWith }}</p>
+      <p class="hero-works">{{ t.hero.worksWith | safe }}</p>
     </div>
 
     <figure class="arch" aria-labelledby="arch-cap">
@@ -312,14 +312,21 @@ pageKind: home
       <li class="why-item">
         <span class="why-sym why-sym-{{ w.sym }}" aria-hidden="true">
           {%- if w.sym == "unknown" %}<svg viewBox="0 0 40 40"><circle class="u-ring" cx="20" cy="20" r="15"/><text x="20" y="27" text-anchor="middle">?</text></svg>
-          {%- elif w.sym == "lead" %}<svg viewBox="0 0 40 40"><path class="l-trail" d="M3 33c6-2 9-8 15-9s9 3 13-2"/><path class="l-x" d="M26 8.5c2.6 2.8 6 6.3 9.4 9.2M35.2 8.2c-3 3.2-6.2 6.4-9.3 9.7"/></svg>
+          {#- who starts it: a process tree, one parent launching two children #}
+          {%- elif w.sym == "launch" %}<svg viewBox="0 0 40 40"><circle class="t-root" cx="10" cy="9" r="4.5"/><path class="t-edge" d="M10 13.5V31.5h11.5M10 21.5h11.5"/><rect class="n-top t-kid" x="22" y="17" width="12" height="9" rx="1.5"/><rect class="n-top t-kid" x="22" y="27" width="12" height="9" rx="1.5"/></svg>
+          {#- what changed: two versions of a page side by side, one line marked #}
+          {%- elif w.sym == "diff" %}<svg viewBox="0 0 40 40"><rect class="n-sheet n-top" x="3" y="7" width="15" height="26" rx="1.5"/><rect class="n-sheet n-top" x="22" y="7" width="15" height="26" rx="1.5"/><path class="n-line" d="M6.5 14h8M6.5 20h8M6.5 26h5M25.5 14h8M25.5 26h5"/><path class="d-mark" d="M25.5 20h8"/></svg>
+          {#- who writes the value: a written sheet on top of another #}
           {%- else %}<svg viewBox="0 0 40 40"><rect class="n-sheet" x="7" y="9" width="22" height="25" rx="1.5"/><rect class="n-sheet n-top" x="11" y="5" width="22" height="25" rx="1.5"/><path class="n-line" d="M15 13h14M15 18h14M15 23h9"/></svg>{% endif -%}
         </span>
         <h3>{{ w.head }}</h3>
-        <p>{{ w.body }}</p>
+        <p>{{ w.body | safe }}</p>
       </li>
       {%- endfor %}
     </ul>
+    {%- if t.why.outro %}
+    <p class="why-outro">{{ t.why.outro }}</p>
+    {%- endif %}
   </div>
 </section>
 
@@ -327,6 +334,9 @@ pageKind: home
   <div class="wrap">
     <div class="sec-head">
       <h2 id="start-title">{{ t.start.title }}</h2>
+      {%- if t.start.preview %}
+      <p class="preview-note">{{ t.start.preview | safe }}</p>
+      {%- endif %}
     </div>
     <ol class="steps">
       {%- for s in t.start.steps %}
@@ -379,9 +389,14 @@ pageKind: home
       <div class="spec-row">
         <h3 class="spec-k">{{ t.details.setupTitle }}</h3>
         <div class="spec-v">
-          {%- for para in t.details.setup %}
-          <p class="spec-text">{{ para | safe }}</p>
-          {%- endfor %}
+          {#- Three steps in order: where downloads come from, how they are checked, and that
+              nothing changes until you say so. #}
+          <ol class="setup-flow">
+            {%- for st in t.details.setup %}
+            <li><span class="sf-n" aria-hidden="true">{{ loop.index }}</span><span class="sf-name">{{ st[0] }}</span><span class="sf-note">{{ st[1] | safe }}</span></li>
+            {%- endfor %}
+          </ol>
+          <p class="spec-text setup-note">{{ t.details.setupNote | safe }}</p>
         </div>
       </div>
       <div class="spec-row">

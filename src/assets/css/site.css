@@ -740,7 +740,7 @@ main:focus {
 
 /* ── hero ───────────────────────────────────────────────────────────────── */
 .hero {
-  padding-block: clamp(40px, 7vw, 88px) clamp(48px, 7vw, 96px);
+  padding-block: clamp(36px, 4.4vw, 56px) clamp(48px, 7vw, 96px);
 }
 .hero-grid {
   display: grid;
@@ -2945,9 +2945,11 @@ main:focus {
   padding: 0;
   list-style: none;
 }
-@media (min-width: 860px) {
+/* Four questions: two by two, so each answer gets a comfortable line length. */
+@media (min-width: 760px) {
   .why-list {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 40px clamp(32px, 5vw, 72px);
   }
 }
 .why-sym svg {
@@ -2996,13 +2998,59 @@ main:focus {
   stroke-width: 1.4;
   stroke-linecap: round;
 }
+.t-root {
+  fill: var(--ink);
+}
+.t-edge {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 2.6;
+}
+.t-kid {
+  stroke-width: 1.4;
+}
+.d-mark {
+  stroke: var(--mark);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
 .why-item h3 {
   font-size: var(--fs-md);
 }
 .why-item p {
+  max-width: 60ch;
   margin-top: 8px;
   color: var(--ink-2);
   font-size: 15.5px;
+}
+.why-item code {
+  white-space: nowrap;
+}
+.why-outro {
+  max-width: 62ch;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid var(--rule);
+  font-size: var(--fs-md);
+  line-height: 1.55;
+  text-wrap: balance;
+}
+:lang(zh) .why-outro {
+  max-width: 40em;
+}
+/* Developer preview: a quiet ruled note under the Quick start heading. */
+.preview-note {
+  max-width: 72ch;
+  margin-top: 14px;
+  padding-left: 14px;
+  border-left: 2px solid var(--ink);
+  font-size: 15px;
+  color: var(--ink-2);
+}
+.preview-note b {
+  color: var(--ink);
+  font-weight: 640;
 }
 
 /* ── code blocks ────────────────────────────────────────────────────────── */
@@ -3259,6 +3307,89 @@ main:focus {
   font-size: 14px;
   line-height: 1.5;
   color: var(--ink-2);
+}
+
+/* Setup: three steps in a row, joined by arrows: pinned source → checked → your go-ahead. */
+.setup-flow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: none;
+}
+.setup-flow li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  gap: 3px 12px;
+  align-content: start;
+}
+.sf-n {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 1.5px solid var(--ink);
+  border-radius: 50%;
+  font-size: 12.5px;
+  font-weight: 640;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.sf-name {
+  align-self: center;
+  font-weight: 640;
+  font-size: 15.5px;
+}
+.sf-note {
+  grid-column: 2;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--ink-2);
+  text-wrap: pretty;
+}
+.sf-note code {
+  white-space: nowrap;
+}
+@media (min-width: 760px) {
+  .setup-flow {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+  }
+  .setup-flow li {
+    padding-right: 44px;
+  }
+  /* No arrow after the last step, so no room kept for one. */
+  .setup-flow li:last-child {
+    padding-right: 0;
+  }
+  /* The arrow to the next step sits level with the step's number. */
+  .setup-flow li:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 11.5px;
+    right: 10px;
+    width: 22px;
+    height: 1.5px;
+    background: var(--ink);
+  }
+  .setup-flow li:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    top: 8px;
+    right: 9px;
+    width: 7px;
+    height: 7px;
+    border-top: 1.5px solid var(--ink);
+    border-right: 1.5px solid var(--ink);
+    transform: rotate(45deg);
+  }
+}
+.setup-note {
+  margin-top: 20px;
+  font-size: 14.5px;
 }
 
 /* Upkeep: two columns of command + what it does. */

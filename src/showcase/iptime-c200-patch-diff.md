@@ -5,9 +5,9 @@ highlights:
   - head: "The backdoor was unlinked, not removed."
     body: "Its handler, hardcoded token and command execution are still in the latest firmware, 1.094 (June 2026)."
   - head: "The buffer got bigger, not safer."
-    body: "The copy into it still takes a length the client decides."
+    body: "The copy into it still uses a length the client chooses."
   - head: "Validation was added only in the browser."
-    body: "The server CGI is byte-identical in both versions."
+    body: "The server-side CGI is byte-identical in both versions."
 stats:
   - "4 of 110 binaries changed"
   - "144 of 144 must-read items judged"
