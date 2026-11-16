@@ -1,6 +1,6 @@
 ---
-title: "CVE-2021-26614 was “fixed”. The backdoor never left."
-description: "A budget general-purpose model with Treasure Map reads the ipTIME C200 patch from 1.058 to 1.060 for about a dollar: three changes that look like security fixes, and not one of them finishes the job. All 144 must-read items were judged; the 3358 it skipped are on the record."
+title: "CVE-2021-26614 was “fixed”. The backdoor code never left."
+description: "DeepSeek-V4.1-Flash, a low-cost general-purpose model, reads the ipTIME C200 patch from 1.058 to 1.060 with Treasure Map for about a dollar: three changes that look like security fixes, and not one of them finishes the job. All 144 must-read items were judged; the 3358 it skipped are on the record."
 highlights:
   - head: "The backdoor was unlinked, not removed."
     body: "Its handler, hardcoded token and command execution are still in the latest firmware, 1.094 (June 2026)."
@@ -94,11 +94,11 @@ The 1.060 patch deletes the branch in the main function that enters the backdoor
 <figcaption>A solid box is code that can be reached. A dashed box is code that is still in the firmware but has no caller.</figcaption>
 </figure>
 
-The handler’s pseudocode is identical to 1.058 (`pseudocode_sameness: identical`, only the addresses shifted down as a block); the `system()` call site, two path sinks and the hardcoded-token comparison are all kept, and it has simply lost its only caller. Treasure Map flags it `lost_every_direct_caller`: 0 callers in the cross-references, no data word holding its entry address, no entry in the dispatch group, which is what lets it confirm the handler is currently unreachable. The agent also noted the signature string is still in the image and recommended deleting the whole function along with the token.
+The handler’s pseudocode is identical to 1.058 (`pseudocode_sameness: identical`, only the addresses shifted down as a block); the `system()` call site, two path sinks and the hardcoded-token comparison are all kept, and it has simply lost its only caller. Treasure Map flags it `lost_every_direct_caller`: 0 callers in the cross-references, no data word holding its entry address, no entry in the dispatch group, which is what lets it confirm the handler is currently unreachable. The agent also noted the signature string is still in the firmware and recommended deleting the whole function along with the token.
 
 That “unreachable” has a condition, and the report states it: function-pointer tables and indirect calls are tool blind spots, so it can only say “unreachable along the direct calls, data words and dispatch tables that were read.” One future refactor that wires a call site back in, and the backdoor is live again. An ordinary diff tool would only tell you the main function got about a hundred bytes shorter.
 
-That half-finished deletion has stayed half-finished for five years. In the latest firmware, 1.094 from June 2026, the backdoor handler still sits in the image and its entry is still not wired back, exactly as in 1.060.
+That half-finished deletion has stayed half-finished for five years. We ran a patch diff of 1.060 against the latest firmware, 1.094 from June 2026: the backdoor handler still sits in the firmware, its entry is still not wired back, and the backdoor-related code is essentially unchanged.
 
 <h3 id="finding-buffer" class="finding-h"><span class="x-mark" aria-hidden="true"></span><a class="header-anchor" href="#finding-buffer">The buffer got bigger, not safer</a></h3>
 
@@ -130,7 +130,7 @@ But the fact Treasure Map lays out is this: the step that copies data into that 
 
 Enlarging the buffer only means an attacker has to push a few more bytes to run off the end; the stack overflow itself is still there. The agent judged it a change that **looks like a fix and does nothing**.
 
-Out of responsible disclosure, this page does not name the function, the buffer size, or how to shape the request: the same firmware line is still on sale, and this hole is most likely still live. What can be shown is how it was caught: Treasure Map put two facts in front of the agent side by side, “the buffer got bigger” and “the copy still has no bound,” and a fake fix cannot hide behind that.
+Out of responsible disclosure, this page does not name the function, the buffer size, or how to shape the request. What can be shown is how it was caught: Treasure Map put two facts in front of the agent side by side, “the buffer got bigger” and “the copy still has no bound,” and a fake fix cannot hide behind that.
 
 <h3 id="finding-frontend" class="finding-h"><span class="x-mark" aria-hidden="true"></span><a class="header-anchor" href="#finding-frontend">Validation was added only in the browser, and missed the more dangerous field</a></h3>
 
@@ -150,7 +150,7 @@ Input validation for account names, passwords and camera names moved from a blac
 
 What makes it worse is that the hardening was put in the wrong place. The whitelist covers the “camera name,” while **the same form carries a more dangerous field**: the server address you fill in when configuring a NAS. When the camera talks to that NAS, the address is handed, unchanged, to a command that runs as root on the device. Across both versions, the server code that receives and uses this field did not change by a byte, and the frontend added no validation for it either. So the patch gave the less dangerous field a browser-side whitelist, while the field on the same form that reaches a root shell was left untouched on both ends.
 
-Again out of responsible disclosure, this page goes only as far as “field → root command,” with no directly usable detail. It was caught the same way, from facts laid side by side: the frontend added a check, the server did not change by a byte, and the dangerous field is checked nowhere. Put together, “only the UI changed” is plain to see.
+It was caught the same way, from facts laid side by side: the frontend added a check, the server did not change by a byte, and the dangerous field is checked nowhere. Put together, “only the UI changed” is plain to see.
 
 ## What else the patch touched
 
