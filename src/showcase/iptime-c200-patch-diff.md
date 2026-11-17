@@ -11,14 +11,14 @@ highlights:
 stats:
   - "4 of 110 binaries changed"
   - "144 of 144 must-read items judged"
-  - "US$0.5–1 per run"
+  - "US$1 per run at peak"
 date: 2026-11-08
 translationKey: iptime-c200-patch-diff
 ---
 
 In May 2021, ipTIME fixed CVE-2021-26614 in firmware 1.060 for its C200 IP camera: a debug backdoor that ran arbitrary commands without a login. Five years later, in 1.094, the latest firmware (June 2026), the backdoor’s code is still there.
 
-We gave the patch to an ordinary model to see how much it could read out of it with Treasure Map. The model was DeepSeek-V4.1-Flash: a general model, not a security specialist, and not the top tier. No expert stepped in and there was no long prompt. The task was one sentence: compare 1.058 and 1.060, find what the patch fixed, whether each fix is complete, and whether the new code brought new attack surface. The whole run cost about a dollar.
+We gave the patch to an ordinary model to see how much it could read out of it with Treasure Map. The model was DeepSeek-V4.1-Flash: a general model, not a security specialist, and not the top tier. No expert stepped in and there was no long prompt. The task was one sentence: compare 1.058 and 1.060, find what the patch fixed, whether each fix is complete, and whether the new code brought new attack surface. The whole run cost about a dollar at peak rates.
 
 The headline of the report it handed back: the patch touched three places that look like security fixes, and not one of them finishes the job.
 
@@ -51,7 +51,7 @@ An ordinary model was the point. Treasure Map does no reasoning and passes no ju
 
 <figure class="wide">
 <img src="/assets/img/sc-cost-en.png" alt="deepseek usage dashboard: API Key dsh, ¥7.57 spent, 502 API calls, 44,343,523 tokens, model deepseek-flash">
-<figcaption>The bill for this run, from the usage dashboard: 502 API calls, 44.3M tokens, <b>¥7.57</b> (about US$1), all on deepseek-flash. Reading all 144 must-read items and pinning down three unfinished fixes cost less than a cup of coffee.</figcaption>
+<figcaption>The bill for this run, from the usage dashboard: 502 API calls, 44.3M tokens, <b>¥7.57</b> (about US$1), all on deepseek-flash. Reading all 144 must-read items and pinning down three unfinished fixes cost less than a cup of coffee. The English and Chinese versions of this case come from two separate runs: this one at DeepSeek’s peak rates, the Chinese one off-peak, so the two bills differ.</figcaption>
 </figure>
 
 ## What the patch changed
