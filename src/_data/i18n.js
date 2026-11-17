@@ -8,7 +8,7 @@ export default {
     meta: {
       title: "Treasure Map: a firmware map for your AI agent",
       description:
-        "Treasure Map scans an unpacked firmware filesystem for every shell command, buffer copy, format string and file open, records where the data comes from, and hands it to your coding agent over MCP.",
+        "Treasure Map runs a full static analysis of unpacked firmware, records facts about four kinds of dangerous call site and produces function-level patch diffs. Your agent queries them over MCP: the tool supplies the facts, the model makes the judgment.",
     },
     nav: { start: "Quick start", blog: "Blog", showcase: "Showcase", design: "Design", github: "GitHub", menu: "Menu" },
     skip: "Skip to content",
@@ -22,7 +22,7 @@ export default {
       taglineTool: "Treasure Map draws the map;",
       taglineAgent: "your agent finds the treasure.",
       lede:
-        "Treasure Map scans an unpacked firmware filesystem and finds every place the compiled code runs a shell command, copies into a buffer, formats a string or opens a file by path. For each one it records where the data comes from and what it could not determine. Given two versions, it shows what the update changed around those calls. Your coding agent reads all of this through the bundled MCP server. It runs no model and needs no API key.",
+        "Treasure Map runs a full static analysis of unpacked firmware, records facts about four kinds of dangerous call site and produces function-level patch diffs. Your agent queries them over MCP: the tool supplies the facts, the model makes the judgment.",
       installLabel: "Install",
       installNote:
         "Installs the <code>tmap</code> command, then <code>tmap init</code> sets up the toolchain, registers the MCP server with your agents and installs the diff-review skill. Restart your agent when it finishes.",
@@ -57,7 +57,7 @@ export default {
       up: "Judgments: annotate, annotate_diff",
       agentSide: "Your agent",
       agentNote: "Claude Code, Codex, Cursor and others",
-      agentDoes: "Reads the pseudocode, traces the input, decides which lead is a real bug, records why.",
+      agentDoes: "Reads the pseudocode, traces the input, decides which candidate is a real bug, records why.",
       rule: "Facts are the tool’s job; judgment is the model’s.",
     },
 
@@ -66,13 +66,13 @@ export default {
       map: {
         name: "Map one firmware",
         body:
-          "Finds every place the compiled code runs a shell command, copies into a memory buffer, formats a string or opens a file by path, and marks each one with what is known, what is not, and why. Your agent picks the views it needs, reads the code, and records its judgments.",
+          "Puts every dangerous call site on a map, with facts such as argument source, controllability and reachability. Anything it can’t determine is marked unknown, saying what’s missing. Your agent picks its views, reads the pseudocode and writes its judgments to the annotation layer.",
         link: "How the map works",
       },
       diff: {
         name: "Diff two versions",
         body:
-          "Lists every function that changed between two releases, grouped by what happened around its dangerous calls. Your agent reviews the few that changed, not the thousands that didn’t.",
+          "Produces a function-level patch diff between two firmware versions, grouping changed functions by what happened around their dangerous call sites. Your agent reviews the few that really changed instead of combing through thousands, and whatever it leaves unread stays on the record.",
         link: "How the diff works",
       },
     },
@@ -80,7 +80,7 @@ export default {
     map: {
       title: "The firmware map",
       intro:
-        "Each candidate is one point on the map, annotated on several equal layers: where the data comes from, how much of it an attacker controls, who wrote the value, how the spot is reached, whether anything filters it on the way, and whether the function was fully analyzed. Each layer reads <b>yes</b>, <b>no</b> or an explicit <b>unknown</b> that says what is missing and why.",
+        "Each dangerous call site is one candidate on the map, with a reading on six equal layers: argument source, controllability, writer, reachability, filtering on the way, and whether its function was fully analyzed. Each reading is <b>yes</b>, <b>no</b> or an explicit <b>unknown</b> that says what is missing and why.",
       rules: [
         {
           head: "There is no score.",
@@ -96,7 +96,7 @@ export default {
         },
       ],
       coverage:
-        "Command-execution, buffer-copy and format-string calls come with in-function argument provenance. Path and file calls are covered for detection and ranking; their controllability comes from a text-level reading, and is marked as such.",
+        "Command-execution, memory-copy and format-string call sites come with in-function argument provenance. File-path call sites are covered for identification and ranking; their controllability comes from a text-level reading, and is marked as such.",
     },
 
     widget: {
@@ -128,12 +128,12 @@ export default {
       { key: "complete", short: "Complete", long: "Function fully analyzed" },
     ],
 
-    classes: { cmd: "Command execution", copy: "Buffer copy", format: "Format string", path: "File path" },
+    classes: { cmd: "Command execution", copy: "Memory copy", format: "Format string", path: "File path" },
 
     diff: {
       title: "The patch diff",
       intro:
-        "<code>tmap diff</code> compares every binary whose content changed, in parallel, running Ghidra, BinExport and BinDiff end to end. You never handle an intermediate file. Your agent reads the few changes that matter instead of thousands of functions, and answers three questions:",
+        "<code>tmap diff</code> compares every binary whose content changed between the two versions, in parallel, running Ghidra, BinExport and BinDiff end to end, and produces a function-level patch diff. You never handle an intermediate file. From it, your agent answers three questions:",
       questions: [
         "Is this a security fix, and which weakness in the old version does it close?",
         "Is the fix complete?",
@@ -172,7 +172,7 @@ export default {
       points: [
         {
           head: "A function-level patch view.",
-          body: "One entry per changed function pair, grouped by what happened around its dangerous calls: a call that now goes somewhere else, a dangerous call that is still there, a reading that could not be decided. A function with no counterpart stays undetermined, never “removed” or “added”.",
+          body: "One entry per changed function pair, grouped by what happened around its dangerous call sites: a call that now goes somewhere else, a dangerous call site that is still there, a reading that could not be decided. A function with no counterpart stays undetermined, never “removed” or “added”.",
         },
         {
           head: "What a similarity score misses.",
@@ -193,7 +193,7 @@ export default {
       viewNew: "New version:",
       viewGroups: {
         retarget: { name: "A call now goes somewhere else", what: "Same call site; the new version calls a different function." },
-        kept: { name: "A dangerous call is still there", what: "The call itself stayed; only an argument changed." },
+        kept: { name: "A dangerous call site is still there", what: "The call itself stayed; only an argument changed." },
         undecided: { name: "Could not be decided", what: "The two functions don’t line up reliably, so they are not forced into a comparison.", flag: "no comparison given" },
       },
       blindName: "Blind spots",
@@ -340,7 +340,7 @@ export default {
     meta: {
       title: "Treasure Map（藏宝图）：给 AI agent 的固件地图",
       description:
-        "Treasure Map 扫描解包后的固件，找出所有执行命令、拷贝缓冲区、格式化字符串、按路径打开文件的调用，记录数据从哪来，通过 MCP 交给你的编程 agent。",
+        "Treasure Map 对解包后的固件做全量静态分析，识别命令执行、内存拷贝、格式化字符串、文件路径四类危险调用点，记录参数来源、可控性、可达性等事实，并给出函数级的补丁对比。agent 通过 MCP 查询：事实由工具提供，判断由模型完成。",
     },
     nav: { start: "快速开始", blog: "博客", showcase: "案例", design: "设计理念", github: "GitHub", menu: "菜单" },
     skip: "跳到正文",
@@ -354,7 +354,7 @@ export default {
       taglineTool: "地图标出地形，",
       taglineAgent: "宝藏由你的 agent 去挖。",
       lede:
-        "Treasure Map 扫描解包后的固件文件系统，找出编译代码里所有执行 shell 命令、拷贝缓冲区、格式化字符串、按路径打开文件的调用，记录每处调用的数据从哪来，以及哪些没能查清。给它两个版本，它会标出更新在这些调用附近改了什么。你的编程 agent 通过内置的 MCP 服务器读取这些结果。它不运行模型，也不需要 API key。",
+        "Treasure Map 对解包后的固件做全量静态分析，识别命令执行、内存拷贝、格式化字符串、文件路径四类危险调用点，记录参数来源、可控性、可达性等事实，并给出函数级的补丁对比。agent 通过 MCP 查询：事实由工具提供，判断由模型完成。",
       installLabel: "安装",
       installNote: "装好 <code>tmap</code> 命令后自动运行 <code>tmap init</code>：配置工具链，把 MCP 服务器注册到你的 agent，并装上 diff 审查 skill。完成后重启 agent。",
       ctaStart: "快速开始",
@@ -388,7 +388,7 @@ export default {
       up: "判断：annotate、annotate_diff",
       agentSide: "你的 agent",
       agentNote: "Claude Code、Codex、Cursor 等",
-      agentDoes: "读伪代码，追数据来源，判断哪条线索是真漏洞，并写下理由。",
+      agentDoes: "读伪代码，追数据来源，判断哪个候选是真漏洞，并写下理由。",
       rule: "事实归工具，判断归模型。",
     },
 
@@ -397,13 +397,13 @@ export default {
       map: {
         name: "给一个固件画地图",
         body:
-          "找出编译后代码里每一处执行 shell 命令、拷贝内存缓冲区、格式化字符串、按路径打开文件的地方，逐一标出哪些已经查清、哪些还不知道，以及为什么不知道。你的 agent 自己挑要看的视图，读代码，记下结论。",
+          "把固件里每一个危险调用点标到地图上，附上参数来源、可控性、可达性等事实；查不清的标为“未知”，并写明缺什么。agent 按需切换视图、读伪代码，把判断写回标注层。",
         link: "了解固件地图",
       },
       diff: {
         name: "对比两个版本",
         body:
-          "列出两个版本之间改动过的每个函数，按危险调用周围的变化分好组。agent 不必在几千个函数里大海捞针，只审改过的那几个。",
+          "对两个固件版本做函数级的补丁对比，按危险调用点周围的变化给改动过的函数分组。agent 只审真正有改动的那几个，不用在几千个函数里翻找；没审的部分也记在账上。",
         link: "了解补丁对比",
       },
     },
@@ -411,14 +411,14 @@ export default {
     map: {
       title: "固件地图",
       intro:
-        "每个候选是地图上的一个点，在几张同等重要的图层上各有一个读数：数据从哪来，攻击者能控制多少，这个值是谁写的，怎么走到这里，路上有没有过滤，这个函数有没有分析完整。每张图层只有三种读数：<b>是</b>、<b>否</b>，或者明确的<b>未知</b>；“未知”会写明缺什么、为什么没查到。",
+        "每个危险调用点是地图上的一个候选，在六张同等重要的图层上各有一个读数：参数来源、可控性、写入者、可达性、途中过滤，以及所在函数是否分析完整。每个读数只有三种：<b>是</b>、<b>否</b>，或者明确的<b>未知</b>；“未知”会写明缺什么、为什么没查到。",
       rules: [
         { head: "没有分数。", body: "默认视图把影响最大、又没有任何事实证明安全的调用排在最前面；agent 可以按任意图层重新排序或筛选。" },
         { head: "重新排序只改变顺序，不改变候选集合。", body: "换一种排序不会藏起任何候选；只有你主动选择的筛选才会缩小列表。" },
         { head: "只有已证明安全的事实能让候选下沉。", body: "无论在哪个视图里，“未知”都不会让候选下沉。未知不等于安全。" },
       ],
       coverage:
-        "命令执行、内存拷贝、格式化字符串这三类调用，带有函数内的参数来源分析。路径和文件类调用目前只做检测和排序，它们的可控性只来自文本层面的读取，结果里会标明这一点。",
+        "命令执行、内存拷贝、格式化字符串三类调用点带有函数内的参数来源分析。文件路径类调用点目前只做识别和排序，可控性只来自文本层面的读取，结果里会标明这一点。",
     },
 
     widget: {
@@ -455,7 +455,7 @@ export default {
     diff: {
       title: "补丁对比",
       intro:
-        "<code>tmap diff</code> 会并行对比所有内容有变化的二进制，从 Ghidra、BinExport 到 BinDiff 全程自动完成，你不用碰任何中间文件。agent 不用在几千个函数里大海捞针，只读真正要紧的那几处改动，并回答三个问题：",
+        "<code>tmap diff</code> 并行对比两个版本里所有内容有变化的二进制，Ghidra、BinExport、BinDiff 全程自动完成，不用碰中间文件，最后给出函数级的补丁对比。agent 据此回答三个问题：",
       questions: [
         "这是不是安全修复？修的是旧版本里哪个弱点？",
         "修完整了吗？",
@@ -493,7 +493,7 @@ export default {
       points: [
         {
           head: "函数级补丁视图。",
-          body: "每对改动过的函数一条，按危险调用附近发生了什么分组：调用的目标换了，危险调用还在原处，或者无法判定。找不到对应函数的标为“未定”，绝不报成“删除”或“新增”。",
+          body: "每对改动过的函数一条，按危险调用点周围的变化分组：调用的目标换了，危险调用点还在原处，或者无法判定。找不到对应函数的标为“未定”，绝不报成“删除”或“新增”。",
         },
         {
           head: "相似度看不到的改动。",
@@ -514,7 +514,7 @@ export default {
       viewNew: "新版本：",
       viewGroups: {
         retarget: { name: "调用的目标换了", what: "同一处调用，新版本调到了另一个函数。" },
-        kept: { name: "危险调用还在原处", what: "调用本身没换，只改了一个参数。" },
+        kept: { name: "危险调用点还在原处", what: "调用本身没换，只改了一个参数。" },
         undecided: { name: "无法判定", what: "两边的函数对不齐，不硬拿来比。", flag: "不给比较结果" },
       },
       blindName: "盲区",
