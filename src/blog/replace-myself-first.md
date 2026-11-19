@@ -56,11 +56,11 @@ Of course, once it was actually built, a lot of the data really couldn’t be ob
 
 ## A flash of inspiration
 
-Just as I was racking my brains over how to cut the number of candidates, my mind drifted back to my childhood, to the books I loved most as a kid: the *Tiger Team* mysteries (冒险小虎队). What has stayed with me most is their decoder card: lay it over the page at the right angle, and the puzzle solves itself.
+Just as I was racking my brains over how to cut the number of candidates, my mind drifted back to my childhood, to the books I loved most as a kid: the *Tiger Team* mysteries by the Austrian writer Thomas Brezina. What has stayed with me most is their decoder card: lay it over the page at the right angle, and the puzzle solves itself.
 
 Wait. A decoder card laid over a book doesn’t change what is printed on the page, yet it gives you something new. Isn’t that exactly what I need to filter the candidates?
 
-That is how the annotation layer, laid over the base map, was born. The AI writes the judgments it reaches through analysis into this layer, so data that couldn’t be obtained before can now be reached by reasoning. The AI’s judgments also accumulate there, and can be reused even after you switch to a different agent. The two layers are completely isolated: changes to the annotation layer never affect the read-only fact layer. And any judgment can be checked against the base map at any time, which closes the loop of analysis, judgment and verification.
+That is how the annotation layer, laid over the fact layer, was born. The AI writes the judgments it reaches through analysis into this layer, so data that couldn’t be obtained before can now be reached by reasoning. The AI’s judgments also accumulate there, and can be reused even after you switch to a different agent. The two layers are completely isolated: changes to the annotation layer never affect the read-only fact layer. And any judgment can be checked against the fact layer at any time, which closes the loop of analysis, judgment and verification.
 
 ## The last piece of the puzzle
 
